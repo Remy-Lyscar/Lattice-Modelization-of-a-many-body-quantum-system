@@ -6,3 +6,4 @@
 
 
 #include"lattice.h"
+#include<Eigen> 

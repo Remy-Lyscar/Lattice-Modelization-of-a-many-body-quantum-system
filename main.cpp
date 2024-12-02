@@ -6,7 +6,6 @@
 
 
 #include<Eigen> 
-// Its' not required to include all the sublibraries from Eigen
 // #include<xdiag>
 
 

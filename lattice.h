@@ -2,6 +2,8 @@
 #define LATTICE_H
 
 
+#include<Eigen> 
+
 class Latice
 {
 

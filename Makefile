@@ -34,7 +34,7 @@ clean:
 
 
 mrproper: clean 
-	rm -f TD2
+	rm -f main
 
 #aussi makedepend mais pas installé sur les ordis du magistère
 
