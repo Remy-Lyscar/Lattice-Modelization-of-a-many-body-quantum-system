@@ -8,7 +8,7 @@ LDFLAGS := -lm
 # nom du compilateur 
 # CPP := g++ -I"C:\Users\remyl\eigen-3.4.0\Eigen"  
 #Pas nécessaire si l'include path est ajouté dans "c-cpp_properties.json" 
-CPP := g++ 
+CPP := g++ -I"C:/Users/remyl/eigen-3.4.0/Eigen" 
 
 # Quelques remarques : -E fait uniquement la précompilation; -o <file> place l'output dans le fichier file; -c compile et assemble mais ne fait pas l'édition de liens
 

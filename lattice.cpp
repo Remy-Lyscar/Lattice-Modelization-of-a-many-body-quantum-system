@@ -3,7 +3,16 @@
 #include<fstream>
 #include<iostream>
 #include<vector>
+#include<Eigen> 
 
 
 #include"lattice.h"
-#include<Eigen> 
+// #include"operators.h"
+
+
+
+
+
+
+
+
