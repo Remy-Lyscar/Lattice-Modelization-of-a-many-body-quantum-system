@@ -23,7 +23,7 @@ bool next_lexicographic(Eigen::VectorXd state, int m, int n) { // calcule le pro
 	return true;
 }
 
-Eigen::MatrixXd init_lexicographic(int m, int n) { // prend une matrice de taille adaptée pour y mettre les vecteurs de la base en colonne
+Eigen::MatrixXd init_lexicographic(int m, int n) { // prend une matrice de taille adaptÃ©e pour y mettre les vecteurs de la base en colonne
 	Eigen::MatrixXd basis; // initialize the matrix that stores the vector
 	basis.resize(m, 0); 
 
@@ -35,7 +35,7 @@ Eigen::MatrixXd init_lexicographic(int m, int n) { // prend une matrice de taill
 	
 	do {
 		basis.conservativeResize(basis.rows(), basis.cols()+1); // agrandit la matrice d'une colonne
-		basis.col(basis.cols()-1) = state;  // ajoute le vecteur à la dernière colonne de la matrice basis
+		basis.col(basis.cols()-1) = state;  // ajoute le vecteur Ã  la derniÃ¨re colonne de la matrice basis
 	} while (next_lexicographic(state, m, n)) // calcule le prochain vecteur de la base
 }
 
@@ -59,7 +59,7 @@ Eigen::VectorXd calculate_tags(const Eigen::MatrixXd basis, const std::vector pr
 	return tags;
 }
 
-voidsort_basis(Eigen::VectorXd& tags, Eigen::MatrixXd& basis) { // sort by ascending order the tags and the vectors of the basis
+void sort_basis(Eigen::VectorXd& tags, Eigen::MatrixXd& basis) { // sort by ascending order the tags and the vectors of the basis
 	for (int i = 0; i < tags.size(); i++) {
 		for (int j = i + 1; j < tags.size(); j++) {
 			if (tags[j] < tags[i]) {
