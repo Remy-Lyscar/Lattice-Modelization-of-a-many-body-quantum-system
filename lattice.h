@@ -8,6 +8,7 @@
 #include<iostream>
 #include<vector>
 #include<complex>
+#include<array>
 
 #include<Eigen>
 
@@ -22,21 +23,30 @@ instantiated */
 
     friend class Operator;   
 
-    virtual unsigned int memory() const = 0; //pure virtual function
-    // function that returns the memory used by the lattice, in octets 
+    virtual void display_all() const = 0; //pure virtual function
+    // function that displays all the informations on the lattice, and a 
+    // visualization of the lattice if possible (use SFML ?) 
 
 }; 
 
 
 class Lattice1D : public Lattice
-/* Implementation of a spin chain, using the XY model (classical and quantum version)*/
+/* Implementation of a spin chain, using the XY model (quantum version)
+A basis of the Hilbert Space of dimension D = 2^N is for instance 
+composed of the tensor products states of the spin 1/2 states of each site.
+All the operators are represented in that specific basis */
 {
     private: 
+
+    // Attributes
 
     // Initialization of the Pauli Matrices (but the declaration has to be done using a constructor), see lattie.cpp file
     Eigen::SparseMatrix<std::complex<double>> S_x; 
     Eigen::SparseMatrix<std::complex<double>> S_y;
     Eigen::SparseMatrix<std::complex<double>> S_z;  
+
+    // Identity matrix
+    Eigen::SparseMatrix<std::complex<double>> I; 
 
 
     unsigned int N; // number of sites, ie of spins, in the chain
@@ -46,14 +56,36 @@ class Lattice1D : public Lattice
     Eigen::SparseMatrix<std::complex<double>> H; // sparse matrix representation of the Hamiltonian of the chain
 
 
-    Eigen::SparseMatrix<std::complex<double>> tensor_product(const Eigen::SparseMatrix<std::complex<double>>& A, const Eigen::SparseMatrix<std::complex<double>>& B) const;
-    // function that computes the tensor product of two sparse matrices A and B
+    // Operator overloading
+
+    
+    //Methods
+
+    Eigen::SparseMatrix<std::complex<double>> kroneckerProductSparse(const Eigen::SparseMatrix<std::complex<double>>& A, const Eigen::SparseMatrix<std::complex<double>>& B) const; // function that computes the tensor product of two sparse matrices A and B
+
+    std::array<unsigned int, 2> neighbours(unsigned int i) const; 
 
     public: 
 
+
+    // Constructors and Destructor
     Lattice1D(unsigned int N_); // Constructs a Spin Chain of N sites
+                                // The initial quantum state is by default the ground state of the system 
+
+    Lattice1D(unsigned int N_, bool random_is_true); // Constructs a Spin Chain of N sites
+                                                     // The initial quantum state is a random state
+                                                     // superposition of some of the tensor product in the basis state 
+
+    
+
+
     ~Lattice1D(); // Destructor
 
+
+    // Display methods 
+
+    void display_all() const; 
+    void displaySparseMatrix(const Eigen::SparseMatrix<std::complex<double>>& M) const; // function that displays a sparse matrix
 
 
 };

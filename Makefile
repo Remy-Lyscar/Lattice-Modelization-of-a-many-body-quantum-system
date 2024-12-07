@@ -1,43 +1,68 @@
-#arguments pour l'étape de compilation: on met tous les avertissements
+# arguments for compilation: we make the compilation verbose, and we ask for all warnings
 CPPFLAGS := -Wall -Wextra
 
-# arguments pour l'édition de liens, bibliothèques externes
+# arguments for linking 
 LDFLAGS := -lm 
 
 
-# nom du compilateur 
-# CPP := g++ -I"C:\Users\remyl\eigen-3.4.0\Eigen"  
-#Pas nécessaire si l'include path est ajouté dans "c-cpp_properties.json" 
+# Compiler and include path 
 CPP := g++ -I"C:/Users/remyl/eigen-3.4.0/Eigen" 
 
-# Quelques remarques : -E fait uniquement la précompilation; -o <file> place l'output dans le fichier file; -c compile et assemble mais ne fait pas l'édition de liens
-
-
-#cible par défaut
+# Default target 
 all: main
 
 
-# compilation finale (avec édition de liens)
-main: main.o
+
+# Compilation and linking 
+main: main.o lattice.o
 	$(CPP) -o main $^ $(LDFLAGS)
-	./main
 
 
-# compilation séparée
-main.o: main.cpp
+# Separate compilation, so that not everything is recompiled when only one file changes
+main.o: main.cpp lattice.h
 	$(CPP) -o $@ -c $< $(CPPFLAGS)
 
 
-# Certains éditeurs créent aussi des .bak ou ~, mais apparemment pas ici 
-clean: 
-	rm -f *.o 
+lattice.o: lattice.cpp lattice.h
+	$(CPP) -o $@ -c $< $(CPPFLAGS)
 
 
-mrproper: clean 
-	rm -f main
 
-#aussi makedepend mais pas installé sur les ordis du magistère
+#----- Non-default target -----
 
 
+# Target to run main.cpp
+run: main 
+	./main
+
+# Target for tests and proof of concepts: it compiles and run directly the poc.cpp file 
+poc: poc.o lattice.o
+	$(CPP) -o poc $^ $(LDFLAGS)
+	./poc
+
+poc.o: poc.cpp lattice.h
+	$(CPP) -o $@ -c $< $(CPPFLAGS)
+
+
+
+# #Dependecy generation
+# depend: 
+# 	makedepend main.cpp
+
+# # Include the dependencies		
+# -include Makefile.dependencies
+
+# # Rule to generate the dependency file
+# Makefile.dependencies: main.cpp
+#     makedepend -f- main.cpp > Makefile.dependencies 2>/dev/null
+
+
+# # Clean target to remove object files
+# clean:
+#     rm -f *.o
+
+# # Mrproper target to remove object files and the executable
+# mrproper: clean
+#     rm -f main
 
 

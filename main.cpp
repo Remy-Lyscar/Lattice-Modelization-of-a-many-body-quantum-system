@@ -4,6 +4,8 @@
 #include<iostream>
 #include<vector>
 #include<complex>
+#include<array>
+#include<cmath>
 
 
 #include<Eigen> 

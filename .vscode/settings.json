@@ -119,5 +119,6 @@
     "cinttypes": "cpp",
     "typeinfo": "cpp",
     "valarray": "cpp"
-  }
+  },
+  "makefile.configureOnOpen": false
 }
