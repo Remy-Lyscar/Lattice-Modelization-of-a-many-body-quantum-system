@@ -45,6 +45,7 @@ Lattice1D::Lattice1D(unsigned int N_): N(N_), D(1<<N_), S_x(2,2), S_y(2,2), S_z(
 
     // Test 
     H = kroneckerProductSparse(S_x,I); 
+    H = kroneckerProductSparse(H, I); 
 
 
 
