@@ -54,15 +54,15 @@ poc.o: poc.cpp lattice.h
 
 # # Rule to generate the dependency file
 # Makefile.dependencies: main.cpp
-#     makedepend -f- main.cpp > Makefile.dependencies 2>/dev/null
+# 	makedepend -f- main.cpp > Makefile.dependencies 2>/dev/null
 
 
-# # Clean target to remove object files
-# clean:
-#     rm -f *.o
+# Clean target to remove object files
+clean:
+	rm -f *.o
 
-# # Mrproper target to remove object files and the executable
-# mrproper: clean
-#     rm -f main
+# Mrproper target to remove object files and the executable
+mrproper: clean
+	rm -f *.exe
 
 
