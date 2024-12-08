@@ -14,11 +14,12 @@
 
 /*-----     Constructors and Destructor     -----*/
 
-Lattice1D::Lattice1D(unsigned int N_): N(N_), D(1<<N_), S_x(2,2), S_y(2,2), S_z(2,2), H(D,D), I(2,2)
+Lattice1D::Lattice1D(unsigned int N_): N(N_), D(1<<N_), S_x(2,2), S_y(2,2), S_z(2,2), I(2,2), J(1.0)
 {
 
     using namespace std::complex_literals; 
 
+    // Identity matrix
     I.setIdentity(); 
 
     // Initialization of the Pauli Matrices
@@ -42,13 +43,9 @@ Lattice1D::Lattice1D(unsigned int N_): N(N_), D(1<<N_), S_x(2,2), S_y(2,2), S_z(
 
 
     // Initialization of the Hamiltonian
+    Eigen::SparseMatrix<std::complex<double>> H(D,D); // It cannot be done using the initializer list, because it requires D to be computed first 
 
-    // Test 
-    H = kroneckerProductSparse(S_x,I); 
-    H = kroneckerProductSparse(H, I); 
-
-
-
+    computeHamiltonianXY(); 
 
     // initialization of the initial state of the spin 1/2 chain, ie the ground state of the system
 
@@ -133,13 +130,51 @@ and stores the result in a Eigen::SparseMAtrix object*/
 }
 
 
+Eigen::SparseMatrix<std::complex<double>> Lattice1D::kroneckerPauli(const Eigen::SparseMatrix<std::complex<double>>& S, unsigned int i) const
+/* Method that computes the Kronecker Product of a Pauli matrix S at site i with the identity matrix at the other sites */
+{
+    Eigen::SparseMatrix<std::complex<double>> result = (i==0) ? S: I;  
+
+    for(unsigned int j = 1; j < N; j++)
+    {
+        if(j == i)
+        {
+            result = kroneckerProductSparse(result, S); 
+        }
+        else
+        {
+            result = kroneckerProductSparse(result, I); 
+        }
+    }
+
+    return result; 
+}
+
+
+void Lattice1D::computeHamiltonianXY() 
+/* This method computes the full hamiltonian of the XY quantum system without keeping 
+in memory the individual spin operators, that are useless for what is to come 
+That method is not const since it's designed to modify class attribute H */
+{
+
+    // Initialize H with the first term. Operator * is overloaded for SparseMatrix multiplication
+    H = kroneckerPauli(S_x,0)*kroneckerPauli(S_x, 1) + kroneckerPauli(S_y,0)*kroneckerPauli(S_y, 1);
+
+    for(unsigned int i = 1; i < N-1; i++)
+    {
+        H += kroneckerPauli(S_x,i)*kroneckerPauli(S_x, i+1) + kroneckerPauli(S_y,i)*kroneckerPauli(S_y, i+1);
+    }
+
+}
+
+
 
 
 /*-----     Public methods     -----*/
 
 void Lattice1D::display_all() const
 {
-    std::cout << "Later on, you will see all the informations about the lattice here!" << std::endl; 
+    std::cout << "Soon, you will see all the informations about the lattice here!" << std::endl; 
 
     displaySparseMatrix(H);
 }
@@ -150,7 +185,7 @@ void Lattice1D::displaySparseMatrix(const Eigen::SparseMatrix<std::complex<doubl
 The SparseMatrix given in argument is passed by referene to avoid the copy of the matrix 
 in the local context of this method */
 {
-    std::cout << "Displaying the sparse matrix at memory adress: " << &M << "\n \n \n" << std::endl; 
+    std::cout << "Displaying the sparse matrix at memory adress: " << &M << "\n \n" << std::endl; 
 
     for(int i = 0; i < M.rows(); i++)
     {
@@ -160,4 +195,6 @@ in the local context of this method */
         }
         std::cout << std::endl; 
     }
+
+    std::cout << "\n \n" << std::endl;
 }

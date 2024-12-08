@@ -18,7 +18,7 @@
 int main()
 {
 
-    Lattice1D chain(3);
+    Lattice1D chain(2);
     chain.display_all();
     
     return 0; 

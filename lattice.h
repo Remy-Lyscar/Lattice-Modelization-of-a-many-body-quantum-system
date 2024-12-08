@@ -50,7 +50,9 @@ All the operators are represented in that specific basis */
 
 
     unsigned int N; // number of sites, ie of spins, in the chain
-    unsigned int D; // dimension of the Hilbert space of the chain
+    int D; // dimension of the Hilbert space of the chain
+    double J; // COupling constant of the XY model (we impose that it is a positive real parameter)
+
 
     
     Eigen::SparseMatrix<std::complex<double>> H; // sparse matrix representation of the Hamiltonian of the chain
@@ -62,14 +64,16 @@ All the operators are represented in that specific basis */
     //Methods
 
     Eigen::SparseMatrix<std::complex<double>> kroneckerProductSparse(const Eigen::SparseMatrix<std::complex<double>>& A, const Eigen::SparseMatrix<std::complex<double>>& B) const; // function that computes the tensor product of two sparse matrices A and B
-
+    Eigen::SparseMatrix<std::complex<double>> kroneckerPauli(const Eigen::SparseMatrix<std::complex<double>>& S, unsigned int i) const; 
+    void computeHamiltonianXY(); // function that computes the Hamiltonian of the XY model
+    
     std::array<unsigned int, 2> neighbours(unsigned int i) const; 
 
     public: 
 
 
     // Constructors and Destructor
-    Lattice1D(unsigned int N_); // Constructs a Spin Chain of N sites
+    Lattice1D(unsigned int N_); // Constructs a Spin Chain of N sites, with coupling parameter J = 1.0
                                 // The initial quantum state is by default the ground state of the system 
 
     Lattice1D(unsigned int N_, bool random_is_true); // Constructs a Spin Chain of N sites
