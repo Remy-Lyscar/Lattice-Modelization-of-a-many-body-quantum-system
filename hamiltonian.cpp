@@ -5,7 +5,7 @@
 #include <cmath>
 #include <vector>
 
-//#include "hamiltonian.h"
+#include "hamiltonian.h"
 
 class Hamiltonian {
 private:
