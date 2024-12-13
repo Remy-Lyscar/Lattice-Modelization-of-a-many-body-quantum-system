@@ -8,6 +8,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "operator.h"
 
 class Operator {
 private:
