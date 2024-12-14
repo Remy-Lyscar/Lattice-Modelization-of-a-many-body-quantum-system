@@ -2,6 +2,7 @@
 #include <Eigen/SparseCore>
 #include <Eigen/Eigenvalues>
 #include <cmath>
+#include <fstream>
 #include <iostream>
 #include <vector>
 #include <stdexcept>
@@ -30,6 +31,24 @@ int main() {
 	Eigen::VectorXd eigenvalues = H.lanczos_eigen(10, v_0, V, eigenvectors);
 
 	std::cout << eigenvalues.transpose() << std::endl;
+
+	std::ofstream file("eigenvalues.txt");
+	if (file.is_open()) {
+		for (int i = 0; i < eigenvalues.size(); ++i) {
+			file << eigenvalues[i] << std::endl;
+		}
+		file.close();
+	}
+	else {
+		std::cerr << "Error when loading the file." << std::endl;
+		return 1;
+	}
+
+	int result = system("python plot.py");
+	if (result != 0) {
+		std::cerr << "Error when executing Python script." << std::endl;
+		return 1;
+	}
 
 	return 0;
 }
