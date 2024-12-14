@@ -3,13 +3,11 @@
 #include<fstream>
 #include<iostream>
 #include<vector>
-#include<Eigen> 
+#include<Eigen>
 #include<complex>
 #include<array>
 
-#include"lattice.h"
-// #include"operator.h"
-
+#include"lattice_xy.h"
 
 
 /*-----     Constructors and Destructor     -----*/

@@ -9,7 +9,8 @@
 #include "hamiltonian.h"
 #include "operator.h"
 
-int main() {
+int main() 
+{
 	int m = 3;
 	int n = 3;
 

@@ -61,7 +61,7 @@ private:
 
 	/* creates a matrix that has the vectors of the Hilbert space basis in columns */
 	Eigen::MatrixXd init_lexicographic(int m, int n) {
-		Eigen::MatrixXd<double> basis; // initialize the matrix that will store the states
+		Eigen::MatrixXd basis; // initialize the matrix that will store the states
 		basis.resize(m, 0);
 
 		std::vector<int> s(m, 0);

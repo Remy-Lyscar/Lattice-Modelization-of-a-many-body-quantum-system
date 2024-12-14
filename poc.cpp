@@ -12,13 +12,13 @@
 // #include<xdiag>
 
 
-#include"lattice.h"
+#include"src/lattice_xy.h"
 
 
 int main()
 {
 
-    Lattice1D chain(3);
+    Lattice1D_XY chain(3);
     chain.display_all();
     
     return 0; 

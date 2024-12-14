@@ -14,16 +14,20 @@ all: main
 
 
 # Compilation and linking 
-main: main.o lattice.o
+main: main.o lattice_xy.o lattice_bh.o
 	$(CPP) -o main $^ $(LDFLAGS)
 
 
 # Separate compilation, so that not everything is recompiled when only one file changes
-main.o: main.cpp lattice.h
+main.o: main.cpp src/lattice_xy.h src/lattice_bh.h
 	$(CPP) -o $@ -c $< $(CPPFLAGS)
 
 
-lattice.o: lattice.cpp lattice.h
+lattice_xy.o: src/lattice_xy.cpp src/lattice_xy.h
+	$(CPP) -o $@ -c $< $(CPPFLAGS)
+
+
+lattice_bh.o: src/lattice_bh.cpp src/lattice_bh.h
 	$(CPP) -o $@ -c $< $(CPPFLAGS)
 
 
@@ -36,11 +40,11 @@ run: main
 	./main
 
 # Target for tests and proof of concepts: it compiles and run directly the poc.cpp file 
-poc: poc.o lattice.o
+poc: poc.o lattice_xy.o lattice_bh.o
 	$(CPP) -o poc $^ $(LDFLAGS)
 	./poc
 
-poc.o: poc.cpp lattice.h
+poc.o: poc.cpp src/lattice_xy.h src/lattice_bh.h
 	$(CPP) -o $@ -c $< $(CPPFLAGS)
 
 
