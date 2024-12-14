@@ -13,9 +13,9 @@ with open('eigenvalues.txt', 'r') as file:
     for line in file:
         eigenvalues.append(float(line.strip()))
 
-indices = list(range(len(eigenvalues)))
+index = list(range(len(eigenvalues)))
 
-plt.scatter(indices, eigenvalues)
+plt.scatter(index, eigenvalues)
 plt.xlabel("Index")
 plt.ylabel("Eigenvalues")
 plt.title("Plot of eigenvalues")
