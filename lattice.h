@@ -40,6 +40,11 @@ All the operators are represented in that specific basis */
 
     // Attributes
 
+    unsigned int N; // number of sites, ie of spins, in the chain
+    int D; // dimension of the Hilbert space of the chain
+    double J; // Coupling constant of the XY model (we impose that it is a positive real parameter)
+    double mu; // tranverse magnetic field parameter of the XY model (we impose that it is a positive real parameter)
+
     // Initialization of the Pauli Matrices (but the declaration has to be done using a constructor), see lattie.cpp file
     Eigen::SparseMatrix<std::complex<double>> S_x; 
     Eigen::SparseMatrix<std::complex<double>> S_y;
@@ -47,12 +52,6 @@ All the operators are represented in that specific basis */
 
     // Identity matrix
     Eigen::SparseMatrix<std::complex<double>> I; 
-
-
-    unsigned int N; // number of sites, ie of spins, in the chain
-    int D; // dimension of the Hilbert space of the chain
-    double J; // COupling constant of the XY model (we impose that it is a positive real parameter)
-
 
     
     Eigen::SparseMatrix<std::complex<double>> H; // sparse matrix representation of the Hamiltonian of the chain
@@ -75,6 +74,9 @@ All the operators are represented in that specific basis */
     // Constructors and Destructor
     Lattice1D(unsigned int N_); // Constructs a Spin Chain of N sites, with coupling parameter J = 1.0
                                 // The initial quantum state is by default the ground state of the system 
+
+
+    Lattice1D(unsigned int N_, double J_); 
 
     Lattice1D(unsigned int N_, bool random_is_true); // Constructs a Spin Chain of N sites
                                                      // The initial quantum state is a random state

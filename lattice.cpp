@@ -14,7 +14,7 @@
 
 /*-----     Constructors and Destructor     -----*/
 
-Lattice1D::Lattice1D(unsigned int N_): N(N_), D(1<<N_), S_x(2,2), S_y(2,2), S_z(2,2), I(2,2), J(1.0)
+Lattice1D::Lattice1D(unsigned int N_): N(N_), D(1<<N_), J(1.0), mu(0.0), S_x(2,2), S_y(2,2), S_z(2,2), I(2,2), H(D,D)
 {
 
     using namespace std::complex_literals; 
@@ -42,9 +42,7 @@ Lattice1D::Lattice1D(unsigned int N_): N(N_), D(1<<N_), S_x(2,2), S_y(2,2), S_z(
     S_z = 0.5*S_z;
 
 
-    // Initialization of the Hamiltonian
-    Eigen::SparseMatrix<std::complex<double>> H(D,D); // It cannot be done using the initializer list, because it requires D to be computed first 
-
+    // Initialization of the Hamiltonian of the XY model
     computeHamiltonianXY(); 
 
     // initialization of the initial state of the spin 1/2 chain, ie the ground state of the system
@@ -57,7 +55,7 @@ Lattice1D::Lattice1D(unsigned int N_): N(N_), D(1<<N_), S_x(2,2), S_y(2,2), S_z(
 
 Lattice1D::~Lattice1D()
 {
-    // std::cout << "Lattice1D Destructor called" << std::endl; 
+    std::cout << "Lattice1D Destructor called" << std::endl; 
 }
 
 
