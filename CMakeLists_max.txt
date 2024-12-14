@@ -1,0 +1,14 @@
+cmake_minimum_required(VERSION 3.31.2) #changer de version si version plus ancienne
+
+project(BoseHubbardProject)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(EIGEN_DIR ${CMAKE_SOURCE_DIR}/eigen-3.4.0) #mettre l'adresse vers eigen (ici eigen 3-4-0)
+include_directories(${EIGEN_DIR})
+
+set(SRC_DIR ${CMAKE_SOURCE_DIR}/src) #mettre tous les fichiers à compiler dans un fichier (que j'ai nommé moi src)
+file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp" "${SRC_DIR}/*.h") 
+
+add_executable(${PROJECT_NAME} ${SOURCES})

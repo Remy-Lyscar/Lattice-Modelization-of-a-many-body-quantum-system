@@ -1,43 +1,31 @@
-#ifndef HAMILTONIAN_H
-#define HAMILTONIAN_H
+#pragma once
 
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
-#include <Eigen/Eigenvalues>
 #include <vector>
-#include <stdexcept>
+#include <cmath>
 
 class Hamiltonian {
 private:
-    Eigen::SparseMatrix<double> smat;
-    double ref; // threshold under which a value is considered null
-    long long m, n, D; // number of sites, bosons, and Hilbert space dimension
+    Eigen::SparseMatrix<double> mat; 
+    std::vector<std::vector<int>> neighbours;
+    int m, n; 
+    double J, U, mu; 
 
-    long long factorial(long long n); // calculate factorial n with a recursive function
-    long long dimension(long long m, long long n); // calculate the dimension of the Hilbert space for n bosons on m sites
-
-    /* implement the Lanczos algorithm for a sparse matrix for nb_iter iterations starting with vector v_0 */
-    void lanczos_diag(int nb_iter, Eigen::VectorXd& v_0, Eigen::MatrixXd& T, Eigen::MatrixXd& V);
-
-    void sort_eigen(Eigen::VectorXd& eigenvalues, Eigen::MatrixXd& eigenvectors); // sort eigenvalues and eigenvectors in descending order
+    int factorial(int n);
+    int dimension(int m, int n);
+    int sum(const Eigen::VectorXd& state, int index1, int index2);
+    bool next_lexicographic(Eigen::VectorXd& state, int m, int n);
+    Eigen::MatrixXd init_lexicographic(int m, int n);
+    double calculate_tag(const Eigen::MatrixXd& basis, const std::vector<int>& primes, int k);
+    Eigen::VectorXd calculate_tags(const Eigen::MatrixXd& basis, const std::vector<int>& primes);
+    void sort_basis(Eigen::VectorXd& tags, Eigen::MatrixXd& basis);
+    int search_tag(const Eigen::VectorXd& tags, double x);
+    void fill_hopping(const Eigen::MatrixXd& basis, const Eigen::VectorXd& tags, const std::vector<std::vector<int>>& neighbours, Eigen::SparseMatrix<double>& hmatrix, double J);
+    void fill_interaction(const Eigen::MatrixXd& basis, Eigen::SparseMatrix<double>& hmatrix, double U);
+    void fill_chemical(const Eigen::MatrixXd& basis, Eigen::SparseMatrix<double>& hmatrix, double mu);
 
 public:
-    Hamiltonian(long long m, long long n, double threshold = 1e-6); // constructor
-
-    /* add a matrix to an operand of type SparseMatrix with same size */
-    Hamiltonian operator + (const Hamiltonian& operand);
-
-    /* multiply a sparse matrix by a multiplicand of type SparseMatrix with same size */
-    Hamiltonian operator * (const Hamiltonian& multiplicand);
-
-    /* multiply a sparse matrix by a vector with concomitant size */
-    Eigen::VectorXd operator * (const Eigen::VectorXd& vector);
-
-    /* calculate the approximate eigenvalues and eigenvectors of the Hamiltonian in Krylov space using the Lanczos algorithm */
-    Eigen::VectorXd lanczos_eigen(int nb_iter, Eigen::VectorXd& v_0, Eigen::MatrixXd& V);
-
-    /* calculate the exact eigenvalues and eigenvectors of the Hamiltonian by an exact diagonalization */
-    Eigen::VectorXd exact_eigen(Eigen::MatrixXd& eigenvectors);
+    Hamiltonian(const std::vector<std::vector<int>>& neighbours, int m, int n, double J, double U, double mu);
+    Eigen::SparseMatrix<double> getHamiltonian();
 };
-
-#endif // HAMILTONIAN_H
