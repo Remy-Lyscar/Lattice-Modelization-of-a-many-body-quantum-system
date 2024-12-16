@@ -60,6 +60,8 @@ class Lattice1D_XY
 
     Lattice1D_XY(unsigned int N_, double J_); 
 
+    Lattice1D_XY(unsigned int N_, double J_, double mu_);
+
     Lattice1D_XY(unsigned int N_, bool random_is_true); // Constructs a Spin Chain of N sites
                                                      // The initial quantum state is a random state
                                                      // superposition of some of the tensor product in the basis state 
