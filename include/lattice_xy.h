@@ -10,7 +10,8 @@
 #include<complex>
 #include<array>
 
-#include<Eigen>
+#include<Eigen/Dense>
+#include<Eigen/SparseCore> 
 
 
 

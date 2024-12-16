@@ -3,11 +3,12 @@
 #include<fstream>
 #include<iostream>
 #include<vector>
-#include<Eigen>
+#include<Eigen/Dense>
+#include<Eigen/SparseCore>
 #include<complex>
 #include<array>
 
-#include"lattice_xy.h"
+#include"../include/lattice_xy.h"
 
 
 /*-----     Constructors and Destructor     -----*/
