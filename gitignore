@@ -1,8 +1,5 @@
-*.exe
-*.o 
-
-Makefile
-CMakeLists.txt 
+build
 
 *.json
+
 
