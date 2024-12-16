@@ -65,8 +65,8 @@ int main() {
 	// PLOTTING THE EIGENVALUES
 	std::ofstream file("eigenvalues.txt");
 	if (file.is_open()) {
-		for (int i = 0; i < eigenvalues.size(); ++i) {
-			file << eigenvalues[i] << std::endl;
+		for (int i = 0; i < eigenvalues1.size(); ++i) {
+			file << eigenvalues1[i] << std::endl;
 		}
 		file.close();
 	}
