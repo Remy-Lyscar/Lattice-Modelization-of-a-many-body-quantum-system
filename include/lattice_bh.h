@@ -28,8 +28,10 @@ class Lattice1D_BH
     double U; // Interaction parameter of the BH model 
     double mu; // tranverse magnetic field parameter of the XY model 
 
-    Eigen::SparseMatrix<std::complex<double>> H; // sparse matrix representation of the Bose-Hubbard Hamiltonian of the chain
+    double epsilon = 1e-10; // threshold beneath which a number is considered as zero 
 
+    Eigen::SparseMatrix<double> H; // sparse matrix representation of the Bose-Hubbard Hamiltonian of the chain
+    Eigen::MatrixXd B; // matrix that contains the basis vectors of the Hilbert space of the chain
 
     // Private methods to build the basis vectors of the Hilbert space and then set the Bose-Hubbard Hamiltonian
 
@@ -38,6 +40,8 @@ class Lattice1D_BH
     int sum(const Eigen::VectorXd& state, int index1, int index2) const;
     bool next_lexicographic(Eigen::VectorXd& state, int m, int n) const;
     Eigen::MatrixXd basis_lexicographic(int m, int n) const;
+
+    // MatrixXd is an alias for: Matrix<double, Dynamic, Dynamic>
 
 
 
@@ -60,7 +64,8 @@ class Lattice1D_BH
     // Display methods 
 
     void display_all() const; 
-    void displaySparseMatrix(const Eigen::SparseMatrix<std::complex<double>>& M) const; // function that displays a sparse matrix
+    void displaySparseMatrix(const Eigen::SparseMatrix<double>& M) const; // function that displays a sparse matrix
+    void display_matrix(const Eigen::MatrixXd& M) const; // function that displays a dense matrix
 
 
 }; 

@@ -44,6 +44,8 @@ Lattice1D_XY::Lattice1D_XY(int N_): N(N_), D(1<<N_), J(1.0), mu(0.0), S_x(2,2), 
     // Initialization of the Hamiltonian of the XY model
     computeHamiltonianXY(); 
 
+    displaySparseMatrix(H); // Display the Hamiltonian of the XY model
+
     // initialization of the initial state of the spin 1/2 chain, ie the ground state of the system
 
 
@@ -180,7 +182,7 @@ void Lattice1D_XY::display_all() const
 
 void Lattice1D_XY::displaySparseMatrix(const Eigen::SparseMatrix<std::complex<double>>& M) const
 /* Display a sparse matrix in a standard form in the terminal, as a full matrix
-The SparseMatrix given in argument is passed by referene to avoid the copy of the matrix 
+The SparseMatrix given in argument is passed by reference to avoid the copy of the matrix 
 in the local context of this method */
 {
     std::cout << "Displaying the sparse matrix at memory adress: " << &M << "\n \n" << std::endl; 
@@ -189,7 +191,17 @@ in the local context of this method */
     {
         for(int j = 0; j < M.cols(); j++)
         {
-            std::cout << M.coeff(i, j) << " "; 
+            std::complex<double> c = M.coeff(i, j);
+            if (std::norm(c) < epsilon)
+            {
+                std::cout << "(0,0)" << " "; 
+            }
+            else
+            {
+                std::cout  << "\033[34m" << c << " "; // Here we print the non zero elements in blue 
+                                                      // so theyr are easy to see in the terminal
+                std::cout << "\033[0m"; // Reset the color to the default one
+            } 
         }
         std::cout << std::endl; 
     }

@@ -8,26 +8,30 @@
 #include<complex>
 #include<array>
 
-#include"../include/lattice_bh.h"
+#include"lattice_bh.h"
 
 
 
 /*-----     Constructors and Destructor     -----*/
 
-Lattice1D_BH::Lattice1D_BH(int N_, int M_): N(N_), M(M_), D(dimension(N_, M_)), J(1.0), U(1.0), mu(0.0), H(D,D)
+Lattice1D_BH::Lattice1D_BH(int N_, int M_): N(N_), M(M_), D(dimension(N_, M_)), J(1.0), U(1.0), mu(0.0), H(D,D), B(D,D)
 {
     // Initialization of the Hamiltonian of the Bose-Hubbard model
     //computeHamiltonianBH(); 
 
-    
+    B = basis_lexicographic(N, M); // Basis vectors of the Hilbert space of the chain
 
+    display_matrix(B); // Display the basis vectors of the Hilbert space of the chain
     // initialization of the initial state of the Bose-Hubbard chain, ie the ground state of the system
 
 }
 
 
 
-
+Lattice1D_BH::~Lattice1D_BH()
+{
+    std::cout << "The lattice implementing Bose-Hubbard model has been destroyed!" << std::endl; 
+}
 
 
 /*-----    Private: Utility methods     -----*/
@@ -95,9 +99,61 @@ Eigen::MatrixXd Lattice1D_BH::basis_lexicographic(int m, int n) const {
 }
 
 
+/*-----     Public methods     -----*/
+
+void Lattice1D_BH::display_all() const
+{
+    std::cout << "Soon, you will see all the informations about the lattice here!" << std::endl; 
+
+    displaySparseMatrix(H);
+}
 
 
+void Lattice1D_BH::displaySparseMatrix(const Eigen::SparseMatrix<double>& M) const
+/* Display a sparse matrix in a standard form in the terminal, as a full matrix
+The SparseMatrix given in argument is passed by reference to avoid the copy of the matrix 
+in the local context of this method */
+{
+    std::cout << "Displaying the sparse matrix at memory adress: " << &M << "\n \n" << std::endl; 
 
+    for(int i = 0; i < M.rows(); i++)
+    {
+        for(int j = 0; j < M.cols(); j++)
+        {
+            std::complex<double> c = M.coeff(i, j);
+            if (std::norm(c) < epsilon)
+            {
+                std::cout << "(0,0)" << " ";  // We consider that the coefficient is indeed zero 
+            }
+            else
+            {
+                std::cout  << "\033[34m" << c << " "; // Here we print the non zero elements in blue 
+                                                      // so theyr are easy to see in the terminal
+                std::cout << "\033[0m"; // Reset the color to the default one
+            } 
+        }
+        std::cout << std::endl; 
+    }
+
+    std::cout << "\n \n" << std::endl;
+}
+
+
+void Lattice1D_BH::display_matrix(const Eigen::MatrixXd& M) const
+{
+    std::cout << "Displaying the matrix at memory adress: " << &M << "\n \n" << std::endl; 
+
+    for(int i = 0; i < M.rows(); i++)
+    {
+        for(int j = 0; j < M.cols(); j++)
+        {
+            std::cout << M(i, j) << " "; 
+        }
+        std::cout << std::endl; 
+    }
+
+    std::cout << "\n \n" << std::endl;
+}
 
 
 

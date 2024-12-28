@@ -27,6 +27,7 @@ class Lattice1D_XY
     int D; // dimension of the Hilbert space of the chain
     double J; // Coupling constant of the XY model 
     double mu; // tranverse magnetic field parameter of the XY model 
+    double epsilon = 1e-10; // threshold beneath which a number is considered as zero
 
     // Initialization of the Pauli Matrices 
     Eigen::SparseMatrix<std::complex<double>> S_x; 
