@@ -8,7 +8,10 @@
 #include<complex>
 #include<array>
 
-#include"../include/lattice_xy.h"
+#include "arpack++/arlsmat.h"
+#include "arpack++/arlssym.h"
+
+#include "lattice_xy.h"
 
 
 /*-----     Constructors and Destructor     -----*/
@@ -45,6 +48,40 @@ Lattice1D_XY::Lattice1D_XY(int N_): N(N_), D(1<<N_), J(1.0), mu(0.0), S_x(2,2), 
     computeHamiltonianXY(); 
 
     displaySparseMatrix(H); // Display the Hamiltonian of the XY model
+
+
+    // Lanczos diagonalisation using arpack ++ library
+    // We will use the ARluSymStdEig class to find the eigenvalues of the Hamiltonian
+
+    // Convert Eigen::SparseMatrix to ARPACK++ compatible format
+    int n = H.rows();
+    std::vector<int> irow, pcol;
+    std::vector<std::complex<double>> values;
+
+    for (int k = 0; k < H.outerSize(); ++k) {
+        pcol.push_back(irow.size());
+        for (Eigen::SparseMatrix<std::complex<double>>::InnerIterator it(H, k); it; ++it) {
+            irow.push_back(it.row());
+            values.push_back(it.value());
+        }
+    }
+    pcol.push_back(irow.size());
+
+    // Create ARPACK++ matrix
+    ARluSymMatrix<std::complex<double>> arH(n, irow.size(), values.data(), irow.data(), pcol.data());
+
+    // Create ARPACK++ solver
+    ARluSymStdEig<double> solver(4, arH, "SM"); // Find 4 smallest magnitude eigenvalues
+
+    // Find eigenvalues and eigenvectors
+    solver.FindEigenvectors();
+
+    // Display results
+    std::cout << "Eigenvalues:" << std::endl;
+    for (int i = 0; i < solver.ConvergedEigenvalues(); ++i) {
+        std::cout << "  " << solver.Eigenvalue(i) << std::endl;
+    }
+
 
     // initialization of the initial state of the spin 1/2 chain, ie the ground state of the system
 

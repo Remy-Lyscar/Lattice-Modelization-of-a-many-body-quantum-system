@@ -17,12 +17,12 @@
 int main(){
 
 
-	int N = 3; 
-	int M = 3; 
+	int N = 3;  
 
 	Lattice1D_XY lattice(N);
 
-	Lattice1D_BH lattice2(N, M);
+	// Test of Arpack function to diagonlaize Sparse Matrix 
+
 	return 0; 
 }
 

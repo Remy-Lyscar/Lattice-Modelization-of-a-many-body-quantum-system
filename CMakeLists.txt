@@ -10,7 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # ======== Dependencies ========
 include_directories(include)   # include the header files (including Eigen library)
 
-# maybe another of include is necessary for ARPACK library
+# find ARPACK and LAPACK 
 
 
 # ======== Build ========
