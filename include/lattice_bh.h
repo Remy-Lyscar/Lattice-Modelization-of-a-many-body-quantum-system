@@ -1,5 +1,5 @@
-#ifndef LATTICE_XY_H
-#define LATTICE_XY_H
+#ifndef LATTICE_BH_H
+#define LATTICE_BH_H
 
 
 #include<chrono>
@@ -20,23 +20,38 @@ class Lattice1D_BH
 
     // Attributes
 
-    unsigned int N; // number of sites, ie of spins, in the chain
+    int N; // number of sites in the chain
+    int M; // number of bosons in the chain
     
     int D; // dimension of the Hilbert space of the chain
-    double J; // Coupling constant of the XY model (we impose that it is a positive real parameter)
-    double mu; // tranverse magnetic field parameter of the XY model (we impose that it is a positive real parameter)
+    double J; // Coupling constant of the XY model 
+    double U; // Interaction parameter of the BH model 
+    double mu; // tranverse magnetic field parameter of the XY model 
+
+    Eigen::SparseMatrix<std::complex<double>> H; // sparse matrix representation of the Bose-Hubbard Hamiltonian of the chain
+
+
+    // Private methods to build the basis vectors of the Hilbert space and then set the Bose-Hubbard Hamiltonian
+
+    int factorial(int n) const;
+    int dimension(int N_, int M_) const;
+    int sum(const Eigen::VectorXd& state, int index1, int index2) const;
+    bool next_lexicographic(Eigen::VectorXd& state, int m, int n) const;
+    Eigen::MatrixXd basis_lexicographic(int m, int n) const;
+
+
 
     public: 
 
-
     // Constructors and Destructor
-    Lattice1D_BH(unsigned int N_); // Constructs a Spin Chain of N sites, with coupling parameter J = 1.0
-                                // The initial quantum state is by default the ground state of the system 
+    Lattice1D_BH(int N_, int M_); // Default constuctor, constructs a chain of N sites and 
+                                       // M bosons, with coupling parameter J = 1.0, interaction parameter U = 1.0 
+                                       // and mu = 0.0
 
 
-    Lattice1D_BH(unsigned int N_, double J_);
+    Lattice1D_BH(int N_,int M_,  double J_, double U_);
 
-    Lattice1D_BH(unsigned int N_, double J_, double mu_);     
+    Lattice1D_BH(int N_, int M_, double J_, double U_, double mu_);     
 
 
     ~Lattice1D_BH(); // Destructor
@@ -51,4 +66,4 @@ class Lattice1D_BH
 }; 
 
 
-#endif // LATTICE_BH_H
+#endif // LATTICE_BH

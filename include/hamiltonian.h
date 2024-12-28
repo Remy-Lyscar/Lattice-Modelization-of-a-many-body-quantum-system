@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 
+
 class Hamiltonian {
 private:
     Eigen::SparseMatrix<double> mat;
@@ -16,10 +17,10 @@ private:
     // DIMENSION OF THE HILBERT SPACE
 
     /* calculate factorial n with a recursive function */
-    int factorial(int n) const;
+    unsigned int factorial(unsigned int n) const;
 
     /* calculate the dimension of the Hilbert space for n bosons on m sites */
-    int dimension(int m, int n) const;
+    unsigned int dimension(unsigned int m, unsigned int n) const;
 
     // ELEMENTARY FUNCTIONS
 

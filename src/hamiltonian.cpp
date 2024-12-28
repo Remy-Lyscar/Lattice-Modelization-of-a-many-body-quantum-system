@@ -35,16 +35,17 @@ bool Hamiltonian::next_lexicographic(Eigen::VectorXd& state, int m, int n) const
 	return false;
 }
 
-/* creates a matrix that has the vectors of the Hilbert space basis in columns */
+/* creates a matrix that has the vectors of the Hilbert space basis in columns
+Rq: we actually construct the transpose */
 Eigen::MatrixXd Hamiltonian::init_lexicographic(int m, int n) const {
 	Eigen::MatrixXd basis(m, 1);
 	basis.col(0).setZero();
-	basis(0, 0) = n;
+	basis(0, 0) = n;  // |N, 0, 0, ..., 0> is the higer state of the Hilbert space in the lexicographic order
 
 	Eigen::VectorXd state = basis.col(0);
 
 	while (next_lexicographic(state, m, n)) {
-		basis.conservativeResize(Eigen::NoChange, basis.cols() + 1);
+		basis.conservativeResize(Eigen::NoChange, basis.cols() + 1); // Resize the matrix while conserving its current data 
 		basis.col(basis.cols() - 1) = state;
 	}
 	return basis;

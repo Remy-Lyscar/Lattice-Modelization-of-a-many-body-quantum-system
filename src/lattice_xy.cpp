@@ -13,7 +13,7 @@
 
 /*-----     Constructors and Destructor     -----*/
 
-Lattice1D_XY::Lattice1D_XY(unsigned int N_): N(N_), D(1<<N_), J(1.0), mu(0.0), S_x(2,2), S_y(2,2), S_z(2,2), I(2,2), H(D,D)
+Lattice1D_XY::Lattice1D_XY(int N_): N(N_), D(1<<N_), J(1.0), mu(0.0), S_x(2,2), S_y(2,2), S_z(2,2), I(2,2), H(D,D)
 {
 
     using namespace std::complex_literals; 
@@ -62,10 +62,10 @@ Lattice1D_XY::~Lattice1D_XY()
 /*-----     Private methods     -----*/
 
 
-std::array<unsigned int, 2> Lattice1D_XY::neighbours(unsigned int i) const
+std::array<int, 2> Lattice1D_XY::neighbours(int i) const
 /* Returns the array of the indexes of the neihbours of a site i in the chain*/
 {  
-    std::array<unsigned int, 2> nei; 
+    std::array<int, 2> nei; 
 
     //Periodic boundary conditions 
     if(i == 0)
@@ -87,7 +87,8 @@ std::array<unsigned int, 2> Lattice1D_XY::neighbours(unsigned int i) const
     return nei; 
 }
 
-Eigen::SparseMatrix<std::complex<double>> Lattice1D_XY::kroneckerProductSparse(const Eigen::SparseMatrix<std::complex<double>>& A, const Eigen::SparseMatrix<std::complex<double>>& B) const
+Eigen::SparseMatrix<std::complex<double>> Lattice1D_XY::kroneckerProductSparse(const Eigen::SparseMatrix<std::complex<double>>& A,
+                                                                               const Eigen::SparseMatrix<std::complex<double>>& B) const
 /* Method that computes the Kronecker Product of two Eigen::SparseMatrix objects
 and stores the result in a Eigen::SparseMAtrix object*/
 {
@@ -127,12 +128,12 @@ and stores the result in a Eigen::SparseMAtrix object*/
 }
 
 
-Eigen::SparseMatrix<std::complex<double>> Lattice1D_XY::kroneckerPauli(const Eigen::SparseMatrix<std::complex<double>>& S, unsigned int i) const
+Eigen::SparseMatrix<std::complex<double>> Lattice1D_XY::kroneckerPauli(const Eigen::SparseMatrix<std::complex<double>>& S, int i) const
 /* Method that computes the Kronecker Product of a Pauli matrix S at site i with the identity matrix at the other sites */
 {
     Eigen::SparseMatrix<std::complex<double>> result = (i==0) ? S: I;  
 
-    for(unsigned int j = 1; j < N; j++)
+    for(int j = 1; j < N; j++)
     {
         if(j == i)
         {
@@ -157,7 +158,7 @@ That method is not const since it's designed to modify class attribute H */
     // Initialize H with the first term. Operator * is overloaded for SparseMatrix multiplication
     H = kroneckerPauli(S_x,0)*kroneckerPauli(S_x, 1) + kroneckerPauli(S_y,0)*kroneckerPauli(S_y, 1);
 
-    for(unsigned int i = 1; i < N-1; i++)
+    for(int i = 1; i < N-1; i++)
     {
         H += kroneckerPauli(S_x,i)*kroneckerPauli(S_x, i+1) + kroneckerPauli(S_y,i)*kroneckerPauli(S_y, i+1);
     }
