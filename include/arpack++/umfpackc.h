@@ -2,9 +2,16 @@
    ARPACK++ v1.2 2/20/2000
    c++ interface to ARPACK code.
 
-   MODULE umfpackc.h.
-   Interface to UMFPACK FORTRAN routines.
+   MODULE UMFPACKc.h.
+   Interface to UMFPACK routines.
 
+   Author of this class:
+      Martin Reuter
+      Date 2/28/2013
+      
+   Arpack++ Author:
+      Francisco Gomes
+      
    ARPACK Authors
       Richard Lehoucq
       Danny Sorensen
@@ -14,229 +21,119 @@
       Houston, Texas
 */
 
-#include "arch.h"
-#include "umfpackf.h"
-
 #ifndef UMFPACKC_H
 #define UMFPACKC_H
 
+#include "arcomp.h"
+#include "arerror.h"
+#include <umfpack.h>
 
-void AfterUm21i(int keep[], int icntl[], bool simest, bool reducible) 
+/* umfpack_defaults */
 
-// A function that changes some components of icntl and keep vectors. 
-
+template <typename T> inline void umfpack_defaults(double* Control)
 {
+    throw ArpackError(ArpackError::NOT_IMPLEMENTED, "umfpack_defaults");
+}
 
-  icntl[2]  = 0;              // icntl(3)=0 to avoid printing umfpack messages.
-  icntl[3]  = (int)reducible; // icntl(4)=1 if matrix must be permuted to
-                              // block triangular form.
-  icntl[5]  = (int)simest;    // icntl(6)=1 if matrix is structurally symmetric
-
-  // Parameters defined in arch.h file.
-
-  if (UICNTL5 != 0) icntl[4] = UICNTL5; // # cols examined during pivot search.
-  if (UICNTL7 != 0) icntl[6] = UICNTL7; // block size for the blas.
-  if (UKEEP7  != 0)  keep[6] = UKEEP7;  // dense columns absolute threshold.
-  if (UKEEP8  != 0)  keep[7] = UKEEP8;  // dense columns relative threshold.
-
-} // AfterUm21i.
-
-
-// UM21I
-
-inline void um21i(ARint keep[], float cntl[], ARint icntl[],
-                  double threshold = 0.1, bool simest = false, 
-                  bool reducible = true) 
-
-// An extended version of UMFPACK's ums21i.
-
+template <> inline void umfpack_defaults<double>(double* Control)
 {
+    umfpack_di_defaults(Control);
+}
 
-  // Calling the FORTRAN function.
-
-  F77NAME(ums21i)(keep, cntl, icntl);
-
-  // Changing cntl vector.
-
-  cntl[0] = (float)threshold;                // relative pivot tolerance.
-  if (UCNTL2 != 0) cntl[1] = (float)UCNTL2;  // amalgamation parameter.
-
-  // Changing keep and icntl.
-
-  AfterUm21i(keep, icntl, simest, reducible);
-
-} // um21i (float)
-
-inline void um21i(ARint keep[], double cntl[], ARint icntl[],
-                  double threshold = 0.1, bool simest = false, 
-                  bool reducible = true) 
-
-// An extended version of UMFPACK's umd21i.
-
+template <> inline void umfpack_defaults<arcomplex<double>>(double* Control)
 {
+    umfpack_zi_defaults(Control);
+}
 
-  // Calling the FORTRAN function.
+/* umfpack_triplet_to_col */
 
-  F77NAME(umd21i)(keep, cntl, icntl);
-
-  // Changing cntl vector.
-
-  cntl[0] = threshold;                       // relative pivot tolerance.
-  if (UCNTL2 != 0) cntl[1] = (double)UCNTL2; // amalgamation parameter.
-
-  // Changing keep and icntl.
-
-  AfterUm21i(keep, icntl, simest, reducible);
-
-} // um21i (double)
-
-#ifdef ARCOMP_H
-
-inline void um21i(ARint keep[], arcomplex<float> cntl[], ARint icntl[],
-                  double threshold = 0.1, bool simest = false, 
-                  bool reducible = true) 
-
-// Another extended version of UMFPACK's ums21i (for complex problems).
-
+inline int umfpack_triplet_to_col(int32_t n_row, int32_t n_col, int32_t nz,
+    const int32_t Ti[], const int32_t Tj[], const double Tx[], int32_t Ap[], int32_t Ai[], double Ax[])
 {
+    return umfpack_di_triplet_to_col(n_row, n_col, nz, Ti, Tj, Tx, Ap, Ai, Ax, nullptr);
+}
 
-  // Calling the FORTRAN function.
-
-  float* fcntl = (float*)cntl;
-  F77NAME(ums21i)(keep, fcntl, icntl);
-
-  // Changing cntl vector.
-
-  fcntl[0] = (float)threshold;               // relative pivot tolerance.
-  if (UCNTL2 != 0) fcntl[1] = (float)UCNTL2; // amalgamation parameter.
-
-  // Changing keep and icntl.
-
-  AfterUm21i(keep, icntl, simest, reducible);
-
-} // um21i (arcomplex<float>)
-
-inline void um21i(ARint keep[], arcomplex<double> cntl[], ARint icntl[],
-                  double threshold = 0.1, bool simest = false, 
-                  bool reducible = true) 
-
-// Another extended version of UMFPACK's umd21i (for complex problems).
-
+inline int umfpack_triplet_to_col(int32_t n_row, int32_t n_col, int32_t nz,
+    const int32_t Ti[], const int32_t Tj[], const arcomplex<double> Tx[], int32_t Ap[], int32_t Ai[], arcomplex<double> Ax[])
 {
+    return umfpack_zi_triplet_to_col(n_row, n_col, nz, Ti, Tj, 
+        (double*)(&Tx[0]), nullptr, Ap, Ai, (double*)(&Ax[0]), nullptr, nullptr);
+}
 
-  // Calling the FORTRAN function.
+/* umfpack_symbolic */
 
-  double* fcntl = (double*)cntl;
-  F77NAME(umd21i)(keep, fcntl, icntl);
+inline int umfpack_symbolic(int32_t n_row, int32_t n_col, int32_t Ap[], int32_t Ai[], double Ax[],
+    void** Symbolic, const double* Control, double* Info)
+{
+    return umfpack_di_symbolic(n_row, n_col, Ap, Ai, Ax, Symbolic, Control, Info);
+}
 
-  // Changing cntl vector.
+inline int umfpack_symbolic(int32_t n_row, int32_t n_col, int32_t Ap[], int32_t Ai[], arcomplex<double> Ax[],
+    void** Symbolic, const double* Control, double* Info)
+{
+    return umfpack_zi_symbolic(n_row, n_col, Ap, Ai, (double*)(&Ax[0]), nullptr, Symbolic, Control, Info);
+}
 
-  fcntl[0] = threshold;                       // relative pivot tolerance.
-  if (UCNTL2 != 0) fcntl[1] = (double)UCNTL2; // amalgamation parameter.
+/* umfpack_numeric */
 
-  // Changing keep and icntl.
+inline int umfpack_numeric(int32_t Ap[], int32_t Ai[], double Ax[],
+    void* Symbolic, void** Numeric, const double* Control, double* Info)
+{
+    return umfpack_di_numeric(Ap, Ai, Ax, Symbolic, Numeric, Control, Info);
+}
 
-  AfterUm21i(keep, icntl, simest, reducible);
+inline int umfpack_numeric(int32_t Ap[], int32_t Ai[], arcomplex<double> Ax[],
+    void* Symbolic, void** Numeric, const double* Control, double* Info)
+{
+    return umfpack_zi_numeric(Ap, Ai, (double*)(&Ax[0]), nullptr, Symbolic, Numeric, Control, Info);
+}
 
-} // um21i (arcomplex<double>)
+/* umfpack_solve */
 
-#endif
+inline int umfpack_solve(int sys, int32_t Ap[], int32_t Ai[], double Ax[],
+    double* X, double* B, void* Numeric, const double* Control, double* Info)
+{
+    return umfpack_di_solve(sys, Ap, Ai, Ax, X, B, Numeric, Control, Info);
+}
 
+inline int umfpack_solve(int sys, int32_t Ap[], int32_t Ai[], arcomplex<double> Ax[],
+    arcomplex<double>* X, arcomplex<double>* B, void* Numeric, const double* Control, double* Info)
+{
+    return umfpack_zi_solve(sys, Ap, Ai, (double*)(&Ax[0]), nullptr, (double*)(&X[0]), nullptr, (double*)(&B[0]), nullptr, Numeric, Control, Info);
+}
 
-// UM2FA
+/* umfpack_free_symbolic */
 
-inline void um2fa(const ARint &n, const ARint &ne, const ARint &job,
-                  const ARlogical &transa, const ARint &lvalue,
-                  const ARint &lindex, float value[], ARint index[],
-                  ARint keep[], const float cntl[], 
-                  const ARint icntl[], ARint info[], float rinfo[]) {
-  F77NAME(ums2fa)(&n, &ne, &job, &transa, &lvalue, &lindex, 
-                  value, index, keep, cntl, icntl, info, rinfo);
-} // um2fa (float)
+template <typename T> inline void umfpack_free_symbolic(void** Symbolic)
+{
+    throw ArpackError(ArpackError::NOT_IMPLEMENTED, "umfpack_free_symbolic");
+}
 
-inline void um2fa(const ARint &n, const ARint &ne, const ARint &job,
-                  const ARlogical &transa, const ARint &lvalue,
-                  const ARint &lindex, double value[], ARint index[],
-                  ARint keep[], const double cntl[], 
-                  const ARint icntl[], ARint info[], double rinfo[]) {
-  F77NAME(umd2fa)(&n, &ne, &job, &transa, &lvalue, &lindex, 
-                  value, index, keep, cntl, icntl, info, rinfo);
-} // um2fa (double)
+template <> inline void umfpack_free_symbolic<double>(void** Symbolic)
+{
+    umfpack_di_free_symbolic(Symbolic);
+}
 
-#ifdef ARCOMP_H
+template <> inline void umfpack_free_symbolic<arcomplex<double>>(void** Symbolic)
+{
+    umfpack_zi_free_symbolic(Symbolic);
+}
 
-inline void um2fa(const ARint &n, const ARint &ne, const ARint &job,
-                  const ARlogical &transa, const ARint &lvalue,
-                  const ARint &lindex, arcomplex<float> value[], 
-                  ARint index[], ARint keep[], 
-                  const arcomplex<float> cntl[], const ARint icntl[], 
-                  ARint info[], arcomplex<float> rinfo[]) {
-  F77NAME(umc2fa)(&n, &ne, &job, &transa, &lvalue, &lindex, value, index, 
-                  keep, (float*)cntl, icntl, info, (float*)rinfo);
-} // um2fa (arcomplex<float>)
+/* umfpack_free_numeric */
 
-inline void um2fa(const ARint &n, const ARint &ne, const ARint &job,
-                  const ARlogical &transa, const ARint &lvalue,
-                  const ARint &lindex, arcomplex<double> value[], 
-                  ARint index[], ARint keep[], 
-                  const arcomplex<double> cntl[], const ARint icntl[], 
-                  ARint info[], arcomplex<double> rinfo[]) {
-  F77NAME(umz2fa)(&n, &ne, &job, &transa, &lvalue, &lindex, value, index, 
-                  keep, (double*)cntl, icntl, info, (double*)rinfo);
-} // um2fa (arcomplex<double>)
+template <typename T> inline void umfpack_free_numeric(void** Numeric)
+{
+    throw ArpackError(ArpackError::NOT_IMPLEMENTED, "umfpack_free_numeric");
+}
 
-#endif
+template <> inline void umfpack_free_numeric<double>(void** Numeric)
+{
+    umfpack_di_free_numeric(Numeric);
+}
 
-
-// UM2SO
-
-inline void um2so(const ARint &n, const ARint &job, 
-                  const ARlogical &transc, const ARint &lvalue, 
-                  const ARint &lindex, float value[], ARint index[],
-                  const ARint keep[], const float b[], float x[], 
-                  float w[], const float cntl[], const ARint icntl[], 
-                  ARint info[], float rinfo[]) {
-  F77NAME(ums2so)(&n, &job, &transc, &lvalue, &lindex, value,
-                  index, keep, b, x, w, cntl, icntl, info, rinfo);
-} // um2so (float)
-
-inline void um2so(const ARint &n, const ARint &job, 
-                  const ARlogical &transc, const ARint &lvalue, 
-                  const ARint &lindex, double value[], ARint index[],
-                  const ARint keep[], const double b[], double x[], 
-                  double w[], const double cntl[], const ARint icntl[], 
-                  ARint info[], double rinfo[]) {
-  F77NAME(umd2so)(&n, &job, &transc, &lvalue, &lindex, value,
-                  index, keep, b, x, w, cntl, icntl, info, rinfo);
-} // um2so (double)
-
-#ifdef ARCOMP_H
-
-inline void um2so(const ARint &n, const ARint &job, 
-                  const ARlogical &transc, const ARint &lvalue, 
-                  const ARint &lindex, arcomplex<float> value[], 
-                  ARint index[], const ARint keep[], const 
-                  arcomplex<float> b[], arcomplex<float> x[], 
-                  arcomplex<float> w[], const arcomplex<float> cntl[], 
-                  const ARint icntl[], ARint info[], 
-                  arcomplex<float> rinfo[]) {
-  F77NAME(umc2so)(&n, &job, &transc, &lvalue, &lindex, value, index, keep,
-                  b, x, w, (float*)cntl, icntl, info, (float*)rinfo);
-} // um2so (arcomplex<float>)
-
-inline void um2so(const ARint &n, const ARint &job, 
-                  const ARlogical &transc, const ARint &lvalue, 
-                  const ARint &lindex, arcomplex<double> value[], 
-                  ARint index[], const ARint keep[], 
-                  const arcomplex<double> b[], arcomplex<double> x[], 
-                  arcomplex<double> w[], const arcomplex<double> cntl[], 
-                  const ARint icntl[], ARint info[], 
-                  arcomplex<double> rinfo[]) {
-  F77NAME(umz2so)(&n, &job, &transc, &lvalue, &lindex, value, index, keep,
-                  b, x, w, (double*)cntl, icntl, info, (double*)rinfo);
-} // um2so (arcomplex<double>)
-
-#endif
-
+template <> inline void umfpack_free_numeric<arcomplex<double>>(void** Numeric)
+{
+    umfpack_zi_free_numeric(Numeric);
+}
 
 #endif // UMFPACKC_H

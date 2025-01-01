@@ -8,8 +8,8 @@
 #include<complex>
 #include<array>
 
-#include "arpack++/arlsmat.h"
-#include "arpack++/arlssym.h"
+#include "arpack++/arlsmat.h" // ARPACK++ classes for matix operations
+#include "arpack++/arlssym.h" // ARPACK++ classes for symmetric standard eigenvalue problems
 
 #include "lattice_xy.h"
 
@@ -71,7 +71,7 @@ Lattice1D_XY::Lattice1D_XY(int N_): N(N_), D(1<<N_), J(1.0), mu(0.0), S_x(2,2), 
     ARluSymMatrix<std::complex<double>> arH(n, irow.size(), values.data(), irow.data(), pcol.data());
 
     // Create ARPACK++ solver
-    ARluSymStdEig<double> solver(4, arH, "SM"); // Find 4 smallest magnitude eigenvalues
+    ARluSymStdEig<std::complex<double>> solver(4, arH, "SM", 0.0); // Find 4 smallest magnitude eigenvalues
 
     // Find eigenvalues and eigenvectors
     solver.FindEigenvectors();

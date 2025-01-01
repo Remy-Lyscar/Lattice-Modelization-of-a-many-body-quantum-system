@@ -5,6 +5,14 @@
    MODULE ARUSPen.h.
    Arpack++ class ARumSymPencil definition.
 
+   Modified to work with Umfpack v5.??
+      Martin Reuter
+      Date 02/28/2013
+
+   Arpack++ Author:
+      Francisco Gomes
+      
+
    ARPACK Authors
       Richard Lehoucq
       Danny Sorensen
@@ -19,9 +27,8 @@
 
 #include "arch.h"
 #include "arerror.h"
-#include "blas1c.h"
-#include "lapackc.h"
 #include "arusmat.h"
+#include "blas1c.h"
 
 
 template<class ARTYPE>
@@ -32,20 +39,19 @@ class ARumSymPencil
 
   ARumSymMatrix<ARTYPE>* A;
   ARumSymMatrix<ARTYPE>* B;
-  ARumSymMatrix<ARTYPE> AsB;
+  ARumSymMatrix<ARTYPE>  AsB;
+
+  void* Numeric;
 
   virtual void Copy(const ARumSymPencil& other);
 
-  void SparseSaxpy(ARTYPE a, ARTYPE x[], int xind[], int nx, ARTYPE y[],
-                   int yind[], int ny, ARTYPE z[], int zind[], int& nz);
+  void Expand(ARumSymMatrix<ARTYPE>* A);
 
-  void ExpandAsB();
-
-  void SubtractAsB(ARTYPE sigma);
+  void ClearMem();
 
  public:
 
-  bool IsFactored() { return AsB.IsFactored(); }
+  bool IsFactored() { return (Numeric != nullptr); }
 
   void FactorAsB(ARTYPE sigma);
 
@@ -55,11 +61,11 @@ class ARumSymPencil
 
   void MultInvBAv(ARTYPE* v, ARTYPE* w);
 
-  void MultInvAsBv(ARTYPE* v, ARTYPE* w) { AsB.MultInvv(v,w); }
+  void MultInvAsBv(ARTYPE* v, ARTYPE* w);
 
   void DefineMatrices(ARumSymMatrix<ARTYPE>& Ap, ARumSymMatrix<ARTYPE>& Bp);
 
-  ARumSymPencil() { AsB.factored = false; }
+  ARumSymPencil(): A(nullptr), B(nullptr), Numeric(nullptr) { }
   // Short constructor that does nothing.
 
   ARumSymPencil(ARumSymMatrix<ARTYPE>& Ap, ARumSymMatrix<ARTYPE>& Bp);
@@ -82,250 +88,121 @@ class ARumSymPencil
 
 
 template<class ARTYPE>
+inline void ARumSymPencil<ARTYPE>::Expand(ARumSymMatrix<ARTYPE>* A)
+{
+    auto mat = A->A;
+
+    if (mat->IsTriangular())
+    {
+        int n = mat->nrows();
+        int ndiag = mat->DiagIndices();
+        int nz = 2 * mat->nzeros();
+
+        if (ndiag > 0)
+        {
+            // Don't count diagonal entries twice.
+            nz -= ndiag;
+        }
+
+        int* ap = new int[n + 1];
+        int* ai = new int[nz];
+        ARTYPE* ax = new ARTYPE[nz];
+
+        ARSparseMatrix<ARTYPE> full(n, n, ap, ai, ax, nz);
+
+        int status = mat->Expand(full);
+
+        if (status > 0)
+        {
+            throw ArpackError(ArpackError::INSUFICIENT_MEMORY,
+                "ARumSymPencil::Expand");
+        }
+
+        // Memory is now owned by A.
+        A->DefineMatrix(n, nz, ax, ai, ap, 'S', A->threshold, true, true);
+    }
+
+}
+
+
+template<class ARTYPE>
+inline void ARumSymPencil<ARTYPE>::ClearMem()
+{
+
+  //if (A) { delete A; A = nullptr; }
+  //if (B) { delete B; B = nullptr; }
+
+} // ClearMem.
+
+template<class ARTYPE>
 inline void ARumSymPencil<ARTYPE>::Copy(const ARumSymPencil<ARTYPE>& other)
 {
-
+  ClearMem();
   A        = other.A;
   B        = other.B;
-  AsB      = other.AsB;
+  //AsB      = other.AsB;
 
 } // Copy.
-
-
-template<class ARTYPE>
-void ARumSymPencil<ARTYPE>::
-SparseSaxpy(ARTYPE a, ARTYPE x[], int xind[], int nx, ARTYPE y[],
-            int yind[], int ny, ARTYPE z[], int zind[], int& nz)
-// A strongly sequential (and inefficient) sparse saxpy algorithm.
-{
-
-  int ix, iy;
-
-  nz = 0;
-  if ((nx == 0) || (a == (ARTYPE)0)) {
-    copy(ny,y,1,z,1);
-    for (iy=0; iy!=ny; iy++) zind[iy] = yind[iy];
-    nz = ny;
-    return;
-  }
-  if (ny == 0) {
-    copy(nx,x,1,z,1);
-    scal(nx,a,z,1);
-    for (ix=0; ix!=nx; ix++) zind[ix] = xind[ix];
-    nz = nx;
-    return;
-  }
-  ix = 0;
-  iy = 0;
-  while (true) {
-    if (xind[ix] == yind[iy]) {
-      zind[nz] = xind[ix];
-      z[nz++]  = a*x[ix++]+y[iy++];
-      if ((ix == nx)||(iy == ny)) break;
-    }
-    else if (xind[ix] < yind[iy]) {
-      zind[nz] = xind[ix];
-      z[nz++]  = a*x[ix++];
-      if (ix == nx) break;
-    }
-    else {
-      zind[nz] = yind[iy];
-      z[nz++]  = y[iy++];
-      if (iy == ny) break;
-    }
-  }
-  while (iy < ny) {
-    zind[nz] = yind[iy];
-    z[nz++]  = y[iy++];
-  }
-  while (ix < nx) {
-    zind[nz] = xind[ix];
-    z[nz++]  = x[ix++];
-  }
-
-} // SparseSaxpy.
-
-
-template<class ARTYPE>
-void ARumSymPencil<ARTYPE>::ExpandAsB()
-{
-
-  int    i, j, k, n;
-  int    *pcol, *irow, *index, *pos;
-  ARTYPE *value;
-
-  // Initializing variables.
-
-  n     = AsB.n;
-  index = AsB.index;
-  value = AsB.value;
-  irow  = &index[n+1];
-  pcol  = new int[AsB.n+1];
-  pos   = new int[AsB.n+1];
-  for (i=0; i<=n; i++) pcol[i] = index[i];
-  for (i=0; i<=n; i++) pos[i] = 0;
-
-  // Counting the elements in each column of AsB.
-
-  if (AsB.uplo == 'U') {
-
-    for (i=0; i!=n; i++) {
-      k = pcol[i+1];
-      if ((k!=pcol[i])&&(irow[k-1]==i)) k--;
-      for (j=pcol[i]; j<k; j++) pos[irow[j]]++;        
-    }
-
-  }
-  else { // uplo == 'L'
-
-    for (i=0; i!=n; i++) {
-      k = pcol[i];
-      if ((k!=pcol[i+1])&&(irow[k]==i)) k++;
-      for (j=k; j<pcol[i+1]; j++) pos[irow[j]]++;        
-    }
-
-  }  
-
-  // Summing up index elements.
-
-  for (i=0; i<n; i++) pos[i+1] += pos[i];
-  for (i=n; i>0; i--) index[i] += pos[i-1];
-    
-  // Expanding A.
-
-  if (AsB.uplo == 'U') {
-
-    for (i=n-1; i>=0; i--) {
-      pos[i] = index[i]+pcol[i+1]-pcol[i];
-      k = pos[i]-1;
-      for (j=pcol[i+1]-1; j>=pcol[i]; j--) {
-        value[k]  = value[j];
-        irow[k--] = irow[j];
-      }
-    }
-    for (i=1; i<n; i++) {
-      k = index[i]+pcol[i+1]-pcol[i];
-      if ((k>index[i])&&(irow[k-1]==i)) k--;
-      for (j=index[i]; j<k; j++) {
-        value[pos[irow[j]]]  = value[j];
-        irow[pos[irow[j]]++] = i;
-      }
-    }
-
-  }
-  else { // uplo  == 'L'
-
-    for (i=n-1; i>=0; i--) {
-      k = index[i+1]-1;
-      for (j=pcol[i+1]-1; j>=pcol[i]; j--) {
-        value[k]  = value[j];
-        irow[k--] = irow[j];
-      }
-      pos[i] = index[i];
-    }
-    for (i=0; i<(n-1); i++) {
-      k = index[i+1]-pcol[i+1]+pcol[i];
-      if ((k<index[i+1])&&(irow[k]==i)) k++;
-      for (j=k; j<index[i+1]; j++) {
-        value[pos[irow[j]]]  = value[j];
-        irow[pos[irow[j]]++] = i;
-      }
-    }
-
-  }
-
-  AsB.nnz = index[n]; 
-
-  //  Deleting temporary vectors.
-
-  delete[] pcol;  
-  delete[] pos;
-
-} // ExpandAsB.
-
-
-template<class ARTYPE>
-void ARumSymPencil<ARTYPE>::SubtractAsB(ARTYPE sigma)
-{
-
-  int i, acol, bcol, asbcol, scol;
-
-  // Quitting function if A->uplo is not equal to B->uplo.
-
-  if ((A->uplo != B->uplo)&&(sigma != (ARTYPE)0)) {
-    throw ArpackError(ArpackError::DIFFERENT_TRIANGLES,
-                      "ARumSymPencil::SubtractAsB");
-  }
-  AsB.uplo = A->uplo;
-
-  // Subtracting sigma*B from A.
-
-  AsB.index[0] = 0;
-  asbcol       = 0;
-
-  for (i=0; i!=AsB.n; i++) {
-    bcol = B->pcol[i];
-    acol = A->pcol[i];
-    SparseSaxpy(-sigma, &B->a[bcol], &B->irow[bcol], B->pcol[i+1]-bcol,
-                &A->a[acol], &A->irow[acol], A->pcol[i+1]-acol,
-                &AsB.value[asbcol], &AsB.index[asbcol+AsB.n+1], scol);
-    asbcol += scol;
-    AsB.index[i+1] = asbcol;
-  }
-
-  // Expanding AsB.
-
-  ExpandAsB();
-
-  // Adding one to all elements of vector index
-  // because the decomposition function was written in FORTRAN.
-
-  for (i=0; i<=AsB.n+AsB.nnz; i++) AsB.index[i]++;
-
-} // SubtractAsB.
-
 
 template<class ARTYPE>
 void ARumSymPencil<ARTYPE>::FactorAsB(ARTYPE sigma)
 {
 
-  // Quitting the function if A and B were not defined.
+    // Quitting the function if A and B were not defined.
 
-  if (!(A->IsDefined()&&B->IsDefined())) {
-    throw ArpackError(ArpackError::DATA_UNDEFINED,
-                      "ARumSymPencil::FactorAsB");
-  }
+    if (!(A->IsDefined() && B->IsDefined())) {
+        throw ArpackError(ArpackError::DATA_UNDEFINED, "ARumSymPencil::FactorAsB");
+    }
 
-  // Defining matrix AsB.
+    // Defining matrix AsB.
 
-  if (!AsB.IsDefined()) {
-    int fillin = A->fillin > B->fillin ? A->fillin : B->fillin;
-    AsB.DefineMatrix(A->ncols(), A->nzeros(), A->a, A->irow,
-                     A->pcol, 'L', A->threshold, fillin, A->icntl[3]);
-    AsB.nnz = A->nzeros()+B->nzeros(); // temporary value.
-  }
+    if (!AsB.IsDefined()) {
 
-  // Reserving memory for some vectors used in matrix decomposition.
+        Expand(A);
+        Expand(B);
 
-  AsB.CreateStructure(); 
+        int* count = new int[A->n];
+        int* work = new int[A->m];
 
-  // Subtracting sigma*B from A and storing the result on AsB.
+        int nnz = A->A->PrepareAdd(*B->A, count, work);
 
-  SubtractAsB(sigma);
+        delete[] count;
+        delete[] work;
 
-  // Decomposing AsB.
+        int* ap = new int[A->n + 1];
+        int* ai = new int[nnz];
+        ARTYPE* ax = new ARTYPE[nnz];
 
-  um2fa(AsB.n, AsB.index[AsB.n], 0, false, AsB.lvalue, AsB.lindex, AsB.value,
-        AsB.index, AsB.keep, AsB.cntl, AsB.icntl, AsB.info, AsB.rinfo);
+        // Do not validate AsB since though the matrix is allocated, no
+        // meaningful values are set.
 
-  // Handling errors.
+        AsB.DefineMatrix(A->m, nnz, ax, ai, ap, 'S', A->threshold, false, true);
+    }
 
-  AsB.ThrowError();
+    // Subtracting sigma*B from A and storing the result on AsB.
 
-  AsB.factored = true;
+    A->A->Add(-sigma, *B->A, *AsB.A);
 
-} // FactorAsB (ARTYPE shift).
+    // Decomposing AsB.
 
+    void* Symbolic;
+
+    auto ap = AsB.A->pcol();
+    auto ai = AsB.A->irow();
+    auto ax = AsB.A->values();
+
+    if (umfpack_symbolic(A->n, A->n, ap, ai, ax, &Symbolic, AsB.control, AsB.info) != UMFPACK_OK) {
+      throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::FactorAsB");
+    }
+
+    if (umfpack_numeric(ap, ai, ax, Symbolic, &Numeric, AsB.control, AsB.info) != UMFPACK_OK) {
+      throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::FactorAsB");
+    }
+
+    umfpack_free_symbolic<ARTYPE>(&Symbolic);
+
+    AsB.factored = true;
+}
 
 template<class ARTYPE>
 void ARumSymPencil<ARTYPE>::MultInvBAv(ARTYPE* v, ARTYPE* w)
@@ -339,6 +216,26 @@ void ARumSymPencil<ARTYPE>::MultInvBAv(ARTYPE* v, ARTYPE* w)
 
 } // MultInvBAv.
 
+template<class ARTYPE>
+void ARumSymPencil<ARTYPE>::MultInvAsBv(ARTYPE* v, ARTYPE* w)
+{
+  if (!Numeric) {
+    throw ArpackError(ArpackError::NOT_FACTORED_MATRIX,
+                      "ARchSymPencil::MultInvAsBv");
+  }
+
+  auto ap = AsB.A->pcol();
+  auto ai = AsB.A->irow();
+  auto ax = AsB.A->values();
+
+  // Solving A.w = v (or AsI.w = v).
+
+  int status = umfpack_solve(UMFPACK_A, ap, ai, ax, w, v, Numeric, AsB.control, AsB.info);
+
+  if (status != UMFPACK_OK)
+    throw ArpackError(ArpackError::PARAMETER_ERROR, "ARumSymPencil::MultInvv");
+
+} // MultInvAsBv
 
 template<class ARTYPE>
 inline void ARumSymPencil<ARTYPE>::
@@ -350,7 +247,7 @@ DefineMatrices(ARumSymMatrix<ARTYPE>& Ap, ARumSymMatrix<ARTYPE>& Bp)
 
   if (A->n != B->n) {
     throw ArpackError(ArpackError::INCOMPATIBLE_SIZES,
-                      "ARumSymMatrix::DefineMatrices");
+                      "ARumSymPencil::DefineMatrices");
   }
 
 } // DefineMatrices.
@@ -360,8 +257,7 @@ template<class ARTYPE>
 inline ARumSymPencil<ARTYPE>::
 ARumSymPencil(ARumSymMatrix<ARTYPE>& Ap, ARumSymMatrix<ARTYPE>& Bp)
 {
-
-  AsB.factored  = false;
+  //AsB.factored  = false;
   DefineMatrices(Ap, Bp);
 
 } // Long constructor.
