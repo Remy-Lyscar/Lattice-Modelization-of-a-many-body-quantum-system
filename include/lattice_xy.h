@@ -37,9 +37,6 @@ class Lattice1D_XY
     // Identity matrix
     Eigen::SparseMatrix<std::complex<double>> I; 
 
-    
-    Eigen::SparseMatrix<std::complex<double>> H; // sparse matrix representation of the Hamiltonian of the chain
-
 
     // Operator overloading
 
@@ -56,6 +53,8 @@ class Lattice1D_XY
 
     public: 
 
+    // Attributes
+    Eigen::SparseMatrix<std::complex<double>> H; // sparse matrix representation of the Hamiltonian of the chain
 
     // Constructors and Destructor
     Lattice1D_XY(int N_); // Constructs a Spin Chain of N sites, with coupling parameter J = 1.0

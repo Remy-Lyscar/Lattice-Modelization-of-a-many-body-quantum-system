@@ -33,12 +33,13 @@ file(GLOB_RECURSE SRC_FILES src/*.cpp)
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -march=native)
 
-# Link against ARPACK and LAPACK 
-target_link_libraries(${PROJECT_NAME} ${LAPACK_LIBRARIES} ${ARPACK_LIBRARIES})
-
-# Link pybind11
-target_link_libraries(${PROJECT_NAME} PRIVATE pybind11::module)
-target_link_libraries(${PROJECT_NAME} PRIVATE pybind11::embed)
+# Link against ARPACK, LAPACK, and pybind11
+target_link_libraries(${PROJECT_NAME} 
+    PRIVATE ${LAPACK_LIBRARIES} 
+    PRIVATE ${ARPACK_LIBRARIES} 
+    PRIVATE pybind11::module 
+    PRIVATE pybind11::embed
+)
 
 # During the linking process, the linker combines object files (machine code, 
 # but the references, variables, ... have not been dealt with yet) from 

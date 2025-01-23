@@ -27,16 +27,40 @@ because it only matches Cpp11 compilers and above.*/
 
 namespace py = pybind11;
 
+
 int main(){
 
 	std::cout << "Starting pybind" << std::endl;
-  	py::scoped_interpreter guard{}; // start interpreter, dies when out of scope
+	py::scoped_interpreter guard{}; // start python interpreter, dies when out of scope
 
-	int N = 3;  
+	auto math = py::module::import("math");
+    double root_two = math.attr("sqrt")(2.0).cast<double>();
+
+    std::cout << "The square root of 2 is: " << root_two << "\n";
+
+
+	py::object eigsh = py::module::import("scipy.sparse.linalg").attr("eigsh");
+
+	int N = 2;  
 
 	Lattice1D_XY lattice(N);
 
-	// Test of Arpack function to diagonlaize Sparse Matrix 
+
+	// Matrice test pour tester si eigsh fonctionnne 
+
+	Eigen::SparseMatrix<std::complex<double>> M(4, 4);
+	M.insert(0,0) = std::complex<double>(1.0, 0.0);
+	M.insert(1,1) = std::complex<double>(-1.0, 0.0);
+	M.insert(2,2) = std::complex<double>(-1.0, 0.0);
+	M.insert(3,3) = std::complex<double>(1.0, 0.0);
+	M.insert(1,2) = std::complex<double>(2.0, 0.0);
+	M.insert(2,1) = std::complex<double>(2.0, 0.0);
+
+
+	auto result = eigsh(M, py::arg("k") = 1, py::arg("which") = "SA", py::arg("return_eigenvectors") = false);
+	auto vaps = result.cast<std::array<std::complex<double>, 1>>();
+
+	std::cout << "The eigenvalues are: " << vaps[0] << std::endl;
 
 	return 0; 
 }
