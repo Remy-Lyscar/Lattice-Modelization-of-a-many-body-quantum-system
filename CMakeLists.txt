@@ -24,7 +24,8 @@ include_directories(${ARPACK_INCLUDE_DIRS})
 pkg_check_modules(SuperLU REQUIRED superlu)
 include_directories(${SuperLU_INCLUDE_DIRS})
 
-
+# Find pybind11
+find_package(pybind11 REQUIRED)
 
 # ======== Build ========
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
@@ -34,6 +35,11 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Wall -march=native)
 
 # Link against ARPACK and LAPACK 
 target_link_libraries(${PROJECT_NAME} ${LAPACK_LIBRARIES} ${ARPACK_LIBRARIES})
+
+# Link pybind11
+target_link_libraries(${PROJECT_NAME} PRIVATE pybind11::module)
+target_link_libraries(${PROJECT_NAME} PRIVATE pybind11::embed)
+
 # During the linking process, the linker combines object files (machine code, 
 # but the references, variables, ... have not been dealt with yet) from 
 # our source code with object files from the ARPACK and LAPACK libraries to 
