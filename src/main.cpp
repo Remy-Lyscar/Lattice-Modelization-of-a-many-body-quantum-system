@@ -1,4 +1,4 @@
-#include <pybind11/pybind11.h>  //includes also Python.h -> it has to be the first include!
+#include <pybind11/pybind11.h>  // includes also Python.h -> it has to be the first include!
                                 // Indeed, Python.h defines some preprocessor variables
                                 // that may affect the behavior of the standard headers.
 #include <pybind11/numpy.h>
@@ -22,15 +22,15 @@ because it only matches Cpp11 compilers and above.*/
 #include "hamiltonian.h"
 #include "operator.h"
 #include "randomvector.h"
-#include "lattice_xy.h"
-#include "lattice_bh.h"
+#include "lattice.h"
+
 
 namespace py = pybind11;
 
 
 int main(){
 
-	std::cout << "Starting pybind" << std::endl;
+	std::cout << "/*----- Starting pybind -----*/" << std::endl;
 	py::scoped_interpreter guard{}; // start python interpreter, dies when out of scope
 
 	auto math = py::module::import("math");
@@ -41,26 +41,17 @@ int main(){
 
 	py::object eigsh = py::module::import("scipy.sparse.linalg").attr("eigsh");
 
+
+
 	int N = 2;  
 
-	Lattice1D_XY lattice(N);
+	BH latticeXY(3,3);
 
 
-	// Matrice test pour tester si eigsh fonctionnne 
-
-	Eigen::SparseMatrix<std::complex<double>> M(4, 4);
-	M.insert(0,0) = std::complex<double>(1.0, 0.0);
-	M.insert(1,1) = std::complex<double>(-1.0, 0.0);
-	M.insert(2,2) = std::complex<double>(-1.0, 0.0);
-	M.insert(3,3) = std::complex<double>(1.0, 0.0);
-	M.insert(1,2) = std::complex<double>(2.0, 0.0);
-	M.insert(2,1) = std::complex<double>(2.0, 0.0);
 
 
-	auto result = eigsh(M, py::arg("k") = 1, py::arg("which") = "SA", py::arg("return_eigenvectors") = false);
-	auto vaps = result.cast<std::array<std::complex<double>, 1>>();
-
-	std::cout << "The eigenvalues are: " << vaps[0] << std::endl;
+	// auto result = eigsh(M, py::arg("k") = 1, py::arg("which") = "SA", py::arg("return_eigenvectors") = false);
+	// auto vaps = result.cast<std::array<std::complex<double>, 1>>();
 
 	return 0; 
 }
