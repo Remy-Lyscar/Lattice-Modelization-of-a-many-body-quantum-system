@@ -27,6 +27,9 @@ include_directories(${SuperLU_INCLUDE_DIRS})
 # Find pybind11
 find_package(pybind11 REQUIRED)
 
+# ======== Doxygen ========
+# Not implemented yet...
+
 # ======== Build ========
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 
