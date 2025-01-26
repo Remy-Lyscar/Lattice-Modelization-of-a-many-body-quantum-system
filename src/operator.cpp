@@ -55,7 +55,7 @@ Eigen::VectorXd Operator::operator * (const Eigen::VectorXd& vector) const {
 ///// DIAGONALIZATION /////
 
 
-    /// IMPLICITLY RESTARTED LANCZOS METHOD ///
+    /// IMPLICITLY RESTARTED LANCZOS METHOD (IRLM) ///
 
 /* implement the IRLM for a sparse matrix to find the first k eigenvalues of a sparse matrix */
 Eigen::VectorXd Operator::IRLM_eigen(int k, Eigen::MatrixXd& eigenvectors) const {
@@ -127,6 +127,23 @@ Eigen::VectorXd Operator::exact_eigen(Eigen::MatrixXd& eigenvectors) const {
     Eigen::VectorXd eigenvalues = eigensolver.eigenvalues(); // eigenvalues of the hamiltonian
     return eigenvalues;
 }
+
+
+
+
+///// PHASE TRANSITION CALCULATIONS /////
+
+/* Calculate the order parameter of the system */
+double Operator::order_parameter(const Eigen::VectorXd& eigenvalues, const Eigen::MatrixXd& eigenvectors) const {
+    throw std::logic_error("This function has not been implemented yet.");
+}
+
+/* Calculate the energy gap ratio of the system */
+double Operator::gap_ratio(const Eigen::VectorXd& eigenvalues) const {
+    throw std::logic_error("This function has not been implemented yet.");
+}
+
+
 
 
 ///// THERMODYNAMICAL FUNCTIONS /////

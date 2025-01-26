@@ -105,6 +105,26 @@ public:
      */
     Eigen::VectorXd exact_eigen(Eigen::MatrixXd& eigenvectors) const;
 
+
+// PHASE TRANSITION CALCULATIONS :
+
+    /**
+     * @brief Calculate the order parameter of the system.
+     * 
+     * @param eigenvalues The vector of eigenvalues.
+     * @param eigenvectors The matrix of eigenvectors.
+     * @return double The order parameter.
+     */
+    double order_parameter(const Eigen::VectorXd& eigenvalues, const Eigen::MatrixXd& eigenvectors) const;
+
+    /**
+    * @brief Calculate the energy gap ratio of the system.
+    *
+    * @param eigenvalues The vector of eigenvalues.
+    * @return double The energy gap ratio.
+    */
+    double gap_ratio(const Eigen::VectorXd& eigenvalues) const;
+
 // THERMODYNAMICAL FUNCTIONS :
 
     /**

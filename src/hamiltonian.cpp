@@ -3,7 +3,7 @@
 #include<Eigen/Dense>
 #include<Eigen/SparseCore>
 #include<complex>
-#include<array>
+#include<vector>
 
 #include "hamiltonian.h"
 
@@ -13,7 +13,63 @@
 ///// IMPLEMENTATION OF HAMILTONIAN CLASS METHODS /////
 
 
-    /// ELEMENTARY FUNCTIONS ///
+    /// NEIGHBOURS ///
+
+/* generate the list of neighbours for a 1D chain */
+std::vector<std::vector<int>> Hamiltonian::chain_neighbours(int m, bool closed) { // by default closed = true for periodic boundary conditions, closed = false for open boundary conditions
+	std::vector<std::vector<int>> neighbours(m);
+	for (int i = 0; i < m; ++i) {
+		if (i > 0) {
+			neighbours[i].push_back(i - 1); // Left neighbour
+		}
+		if (i < m - 1) {
+			neighbours[i].push_back(i + 1); // Right neighbour
+		}
+	}
+	if (closed) { // Periodic boundary conditions
+		neighbours[0].push_back(m - 1); 
+		neighbours[m - 1].push_back(0); 
+	}
+	return neighbours;
+}
+
+/* generate the list of neighbours for a 2D square lattice */
+std::vector<std::vector<int>> Hamiltonian::square_neighbours(int m, bool closed) { // by default closed = true for periodic boundary conditions, closed = false for open boundary conditions
+    int side = static_cast<int>(std::sqrt(m));
+    if (side * side != m) {
+        throw std::invalid_argument("The number of sites (m) must be a perfect square.");
+    }
+    std::vector<std::vector<int>> neighbours(m);
+    for (int i = 0; i < side; ++i) {
+        for (int j = 0; j < side; ++j) {
+            int index = i * side + j;
+            if (j > 0) {
+                neighbours[index].push_back(index - 1); // Left neighbour
+            } else if (closed) {
+                neighbours[index].push_back(index + side - 1);
+            }
+            if (j < side - 1) {
+                neighbours[index].push_back(index + 1); // Right neighbour
+            } else if (closed) {
+                neighbours[index].push_back(index - side + 1);
+            }
+            if (i > 0) {
+                neighbours[index].push_back(index - side); // Top neighbour
+            } else if (closed) {
+                neighbours[index].push_back(index + (side - 1) * side);
+            }
+            if (i < side - 1) {
+                neighbours[index].push_back(index + side); // Bottom neighbour
+            } else if (closed) {
+                neighbours[index].push_back(index - (side - 1) * side);
+            }
+        }
+    }
+    return neighbours;
+}
+
+
+    /// DISPLAY FUNCTIONS ///
 
 /* Display a sparse matrix in a standard form in the terminal, as a full matrix */
 template <typename T> void Hamiltonian::displaySparseMatrix(const Eigen::SparseMatrix<T>& M) const{
@@ -52,23 +108,6 @@ void Hamiltonian::displayMatrix(const Eigen::MatrixXd& M) const{
     std::cout << "\n \n" << std::endl;
 }
 
-/* Return the array of the indices of the neighbours of a site i in the chain*/
-std::array<int, 2> XY::neighbours(int i) const{  
-    std::array<int, 2> nei;  
-    if(i == 0){
-         nei[0] = N-1;  //Periodic boundary conditions
-         nei[1] = 1; 
-    }
-    else if(i == N-1){
-         nei[0] = N-2; 
-         nei[1] = 0; 
-    }
-    else{
-         nei[0] = i-1; 
-         nei[1] = i+1; 
-    }
-    return nei; 
-}
 
 
 
@@ -188,6 +227,7 @@ void XY::display_all() const {
 
 
 
+
 /////  IMPLEMENTATION OF THE BH CLASS METHODS  /////
 
     
@@ -226,7 +266,7 @@ int BH::dimension(int m, int n) const{
 
     /// INITIALIZE THE HILBERT SPACE BASIS ///
 
-/* Calculate the next state of the Hilbert space in lexicographic order */
+/* Calculate the next Fock state of the Hilbert space in lexicographic order */
 bool BH::next_lexicographic(Eigen::VectorXd& state, int m, int n) const {
 	for (int k = m - 2; k > -1; k--) {
 		if (state[k] != 0) {
@@ -241,7 +281,7 @@ bool BH::next_lexicographic(Eigen::VectorXd& state, int m, int n) const {
 	return false;
 }
 
-/* Create the matrix that has the vectors of the Hilbert space basis in columns */
+/* Create the matrix that has the Fock states of the Hilbert space basis in columns */
 Eigen::MatrixXd BH::init_lexicographic(int m, int n) const {
 	Eigen::MatrixXd basis(m, D);
 	Eigen::VectorXd state = Eigen::VectorXd::Zero(m);

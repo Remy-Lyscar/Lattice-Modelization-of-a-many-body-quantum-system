@@ -3,10 +3,10 @@
 
 #include<vector>
 #include<complex>
-#include<array>
 
 #include<Eigen/Dense>
 #include<Eigen/SparseCore> 
+
 
 
 
@@ -16,8 +16,33 @@
  * This class provides a common interface for different types of Hamiltonians.
  */
 class Hamiltonian{
-public : 
+public :
 
+// NEIGHBOURS
+
+    /**
+     * @brief Generate the list of neighbours for a 1D chain.
+     * 
+     * @param m Number of sites in the chain.
+     * @param closed By default, closed = true for periodic boundary conditions, closed = false for open boundary conditions.
+     * @return std::vector<std::vector<int>> The list of neighbours for each site of the chain.
+     */
+    std::vector<std::vector<int>> chain_neighbours(int m, bool closed = true);
+
+    /**
+     * @brief Generate the list of neighbours for a 2D square lattice.
+     * 
+     * @param m Number of sites in the square.
+     * @param closed By default, closed = true for periodic boundary conditions, closed = false for open boundary conditions.
+     * @return std::vector<std::vector<int>> The list of neighbours for each site of the square.
+     */
+     std::vector<std::vector<int>> square_neighbours(int m, bool closed = true);
+
+// DISPLAY METHODS
+
+    /**
+     * @brief Display all the attributes of the Hamiltonian.
+     */
     virtual void display_all() const = 0; 
     
     /**
@@ -36,10 +61,10 @@ public :
     void displayMatrix(const Eigen::MatrixXd& M) const; 
 
 protected :
-    double epsilon = 1e-10; // threshold beneath which a number is considered as zero
-    std::array<int, 2> neighbours(int i) const; 
+    double epsilon = 1e-10; // threshold beneath which a number is considered as zero 
 
 }; 
+
 
 
 
@@ -78,12 +103,10 @@ private :
     Eigen::SparseMatrix<std::complex<double>> kroneckerPauli(const Eigen::SparseMatrix<std::complex<double>>& S, int i) const; 
     void computeHamiltonianXY(); 
     
-    /* function that returns the array of the indices of the neighbours of a site i in the chain */
-    std::array<int, 2> neighbours(int i) const; 
-
 public: 
 
 // CONSTRUCTORS
+
     /**
      * @brief Constructor for the XY Hamiltonian with by default coupling parameter J = 1.0 and initial quantum state the ground state of the system
      * 
@@ -133,6 +156,7 @@ public:
     */
     void display_all() const; 
 }; 
+
 
 
 
@@ -209,9 +233,9 @@ public:
     /**
     * @brief Constructor for the Bose-Hubbard Hamiltonian.
     * 
-    * @param neighbours Vector that contains the neighbours of each site of the chain.
-    * @param m Number of sites in the chain.
-    * @param n Number of bosons in the chain.
+    * @param neighbours Vector that contains the neighbours of each site of the lattice.
+    * @param m Number of sites in the lattice.
+    * @param n Number of bosons in the lattice.
     * @param J Hopping parameter of the BH model.
     * @param U Interaction parameter of the BH model.
     * @param mu Chemical potential of the BH model.
@@ -230,7 +254,7 @@ public:
 // DISPLAY METHODS
 
     /**
-    * @brief Display all the attributes of the XY model.
+    * @brief Display all the attributes of the BH model.
     */
     void display_all() const; 
 };

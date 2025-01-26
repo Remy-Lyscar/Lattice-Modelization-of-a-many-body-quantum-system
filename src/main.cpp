@@ -22,7 +22,7 @@ because it only matches Cpp11 compilers and above.*/
 #include "hamiltonian.h"
 #include "operator.h"
 #include "randomvector.h"
-#include "lattice.h"
+
 
 
 namespace py = pybind11;
@@ -42,12 +42,9 @@ int main(){
 	py::object eigsh = py::module::import("scipy.sparse.linalg").attr("eigsh");
 
 
-
 	int N = 2;  
 
 	BH latticeXY(3,3);
-
-
 
 
 	// auto result = eigsh(M, py::arg("k") = 1, py::arg("which") = "SA", py::arg("return_eigenvectors") = false);
@@ -58,25 +55,6 @@ int main(){
 
 
 
-
-// /* generate the list of neighbours for a 1D chain */
-// std::vector<std::vector<int>> chain_neighbours(int m, int closed = 1) { // closed = 0 for open boundary conditions, closed = 1 for periodic boundary conditions
-// 	std::vector<std::vector<int>> neighbours(m);
-// 	for (int i = 0; i < m; ++i) {
-// 		if (i > 0) {
-// 			neighbours[i].push_back(i - 1); // Left neighbour
-// 		}
-// 		if (i < m - 1) {
-// 			neighbours[i].push_back(i + 1); // Right neighbour
-// 		}
-// 	}
-// 	if (closed == 1) { // Periodic boundary conditions
-// 		neighbours[0].push_back(m - 1); 
-// 		neighbours[m - 1].push_back(0); 
-// 	}
-// 	return neighbours;
-// }
-
 // int main() {
 
 // 	// PARAMETERS OF THE MODEL
@@ -85,7 +63,7 @@ int main(){
 // 	double J = 1; // hopping parameter
 // 	double U = 0; // on-site interaction
 // 	double mu = 1; // chemical potential
-// 	std::vector < std::vector<int>> neighbours = chain_neighbours(m); // list of neighbours
+// 	std::vector < std::vector<int>> neighbours = Hamiltonian::chain_neighbours(m); // list of neighbours
 
 
 // 	// INITIALIZATION OF THE HAMILTONIAN
