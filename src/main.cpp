@@ -44,7 +44,7 @@ int main(){
 
 	int N = 2;  
 
-	BH latticeXY(3,3);
+	XY XY(3,3);
 
 
 	// auto result = eigsh(M, py::arg("k") = 1, py::arg("which") = "SA", py::arg("return_eigenvectors") = false);

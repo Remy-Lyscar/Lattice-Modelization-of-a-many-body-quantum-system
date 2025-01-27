@@ -143,6 +143,27 @@ public:
      * @param temperature The temperature.
      */
     void canonical_density_matrix(const Eigen::VectorXd& eigenvalues, double temperature) const;
+
+    /**
+     * @brief Calculate the boson density of the system.
+     * 
+     * @param eigenvalues1 The vector of eigenvalues of the first Hamiltonian with mu.
+     * @param eigenvalues2 The vector of eigenvalues of the second Hamiltonian with mu + dmu.
+     * @param dmu The difference of chemical potential.
+     * @return double The boson density.
+     */
+    double boson_density(const Eigen::VectorXd& eigenvalues1, const Eigen::VectorXd& eigenvalues2, double dmu ) const;
+
+    /**
+     * @brief Calculate the double compressibility of the system.
+     * 
+     * @param density1 The density of the first Hamiltonian with mu.
+     * @param density2 The density of the second Hamiltonian with mu + dmu.
+     * @param dmu The difference of chemical potential.
+     * @return double The double compressibility.
+     */
+    double compressibility(double density1, double density2, double dmu) const;
+
 };
 
 #endif // OPERATOR_H

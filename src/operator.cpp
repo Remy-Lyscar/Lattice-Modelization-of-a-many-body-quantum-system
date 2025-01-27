@@ -2,8 +2,11 @@
 #include <Eigen/SparseCore>
 #include <Eigen/Eigenvalues>
 #include <stdexcept>
+#include <cmath>
 
 #include "operator.h"
+
+// REMARQUE : TROUVER LES FONCTIONS A RECODER AVEC CTRL + F "TODO"
 
 
     /// CONSTRUCTOR ///
@@ -57,6 +60,7 @@ Eigen::VectorXd Operator::operator * (const Eigen::VectorXd& vector) const {
 
     /// IMPLICITLY RESTARTED LANCZOS METHOD (IRLM) ///
 
+//TODO : Implement the IRLM for a sparse matrix to find the first eigenvalue of a sparse matrix with scipy.sparse.linalg.eigsh
 /* implement the IRLM for a sparse matrix to find the first k eigenvalues of a sparse matrix */
 Eigen::VectorXd Operator::IRLM_eigen(int k, Eigen::MatrixXd& eigenvectors) const {
     throw std::logic_error("This function has not been implemented yet.");
@@ -133,11 +137,14 @@ Eigen::VectorXd Operator::exact_eigen(Eigen::MatrixXd& eigenvectors) const {
 
 ///// PHASE TRANSITION CALCULATIONS /////
 
-/* Calculate the order parameter of the system */
+
+// TODO: Implement the order parameter calculation
+/* Calculate the order parameter of the system */ 
 double Operator::order_parameter(const Eigen::VectorXd& eigenvalues, const Eigen::MatrixXd& eigenvectors) const {
     throw std::logic_error("This function has not been implemented yet.");
 }
 
+// TODO: Implement the energy gap ratio calculation
 /* Calculate the energy gap ratio of the system */
 double Operator::gap_ratio(const Eigen::VectorXd& eigenvalues) const {
     throw std::logic_error("This function has not been implemented yet.");
@@ -147,6 +154,7 @@ double Operator::gap_ratio(const Eigen::VectorXd& eigenvalues) const {
 
 
 ///// THERMODYNAMICAL FUNCTIONS /////
+
 
 /* Calculate the partition function Z for an ALREADY diagonalized hamiltonian */
 double Operator::partition_function(const Eigen::VectorXd& eigenvalues, double temperature) const {
@@ -159,7 +167,20 @@ double Operator::partition_function(const Eigen::VectorXd& eigenvalues, double t
     return Z;
 }
 
+// TODO: Implement the canonical density matrix calculation
 /* Calculate the canonical density matrix for an ALREADY diagonalized hamiltonian */
 void Operator::canonical_density_matrix(const Eigen::VectorXd& eigenvalues, double temperature) const {
     throw std::logic_error("This function has not been implemented yet.");
+}
+
+//TODO : Implement the mean boson density calculation so it depends of the chemical potential
+/* Calculate the mean boson density of the system */
+double Operator::boson_density(const Eigen::VectorXd& eigenvalues1, const Eigen::VectorXd& eigenvalues2, double dmu ) const {
+    return -(eigenvalues2(0) - eigenvalues1(0))/dmu;
+}
+
+//TODO : Implement the compressibility calculation so it depends of the chemical potential
+/* Calculate the compressibility of the system */
+double Operator::compressibility(double density1, double density2, double dmu) const {
+    return std::pow( ((density2 + density1)/2), -2) * (density2 - density1)/dmu;
 }
