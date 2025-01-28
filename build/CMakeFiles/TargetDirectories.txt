@@ -1,0 +1,4 @@
+/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/build/CMakeFiles/doc_doxygen.dir
+/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/build/CMakeFiles/QuantumProject.dir
+/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/build/CMakeFiles/edit_cache.dir
+/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/build/CMakeFiles/rebuild_cache.dir
