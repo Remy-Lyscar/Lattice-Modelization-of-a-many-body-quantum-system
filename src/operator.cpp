@@ -1,10 +1,14 @@
+#include <stdexcept>
+#include <cmath>
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 #include <Eigen/Eigenvalues>
-#include <stdexcept>
-#include <cmath>
+#include <Spectra/GenEigsSolver.h>
+#include <Spectra/MatOp/SparseGenMatProd.h>
 
 #include "operator.h"
+
+using namespace Spectra;
 
 // REMARQUE : TROUVER LES FONCTIONS A RECODER AVEC CTRL + F "TODO"
 
@@ -60,10 +64,17 @@ Eigen::VectorXd Operator::operator * (const Eigen::VectorXd& vector) const {
 
     /// IMPLICITLY RESTARTED LANCZOS METHOD (IRLM) ///
 
-//TODO : Implement the IRLM for a sparse matrix to find the first eigenvalue of a sparse matrix with scipy.sparse.linalg.eigsh
-/* implement the IRLM for a sparse matrix to find the first k eigenvalues of a sparse matrix */
-Eigen::VectorXd Operator::IRLM_eigen(int k, Eigen::MatrixXd& eigenvectors) const {
-    throw std::logic_error("This function has not been implemented yet.");
+/* implement the IRLM for a sparse matrix to find the smallest k eigenvalues of a sparse matrix */
+Eigen::VectorXcd Operator::IRLM_eigen(int nb_eigen) const {
+    SparseGenMatProd<double> op(this->O); // create a compatible matrix object
+    GenEigsSolver<SparseGenMatProd<double>> eigs(op, nb_eigen, 2 * nb_eigen); // create an eigen solver object
+    eigs.init(); 
+    [[maybe_unused]] int nconv = eigs.compute(Spectra::SortRule::SmallestMagn); // solve the eigen problem
+    if (eigs.info() == Spectra::CompInfo::Successful) { // verify if the eigen search is a success
+        throw std::runtime_error("Eigenvalue computation failed.");
+    }
+    Eigen::VectorXcd eigenvalues = eigs.eigenvalues(); // eigenvalues of the hamiltonian
+    return eigenvalues;
 }
 
 
@@ -105,7 +116,8 @@ void Operator::FOLM_diag(int nb_iter, Eigen::VectorXd& v_0, Eigen::MatrixXd& T, 
 }
 
 /* Calculate the approximate eigenvalues and eigenvectors of the hamiltonian using the Lanczos algorithm */
-Eigen::VectorXd Operator::FOLM_eigen(int nb_iter, Eigen::VectorXd& v_0, Eigen::MatrixXd& V, Eigen::MatrixXd& eigenvectors) const {
+Eigen::VectorXd Operator::FOLM_eigen(int nb_iter, Eigen::VectorXd& v_0, Eigen::MatrixXd& eigenvectors) const {
+    Eigen::MatrixXd V(D, nb_iter); // initialize the matrix V of vectors of the Krylov basis
     Eigen::MatrixXd T(nb_iter,nb_iter); // initialize the tridiagonal matrix T 
     FOLM_diag(nb_iter, v_0, T, V); // tridiagonalize the hamiltonian using Lanczos algorithm
     Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigensolver(T); // solve the eigen problem for T

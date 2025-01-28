@@ -1,10 +1,12 @@
 #ifndef OPERATOR_H
 #define OPERATOR_H
 
+#include <cmath>
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 #include <Eigen/Eigenvalues>
-
+#include <Spectra/GenEigsSolver.h>
+#include <Spectra/MatOp/SparseGenMatProd.h>
 
 
 /**
@@ -80,11 +82,11 @@ public:
     /**
      * @brief Calculate the approximate eigenvalues and eigenvectors of the Hamiltonian using the Implicitly Restarted Lanczos Method.
      * 
-     * @param k The number of eigenvalues to calculate.
+     * @param nb_eigen The number of eigenvalues to calculate.
      * @param eigenvectors An empty matrix to store the eigenvectors.
      * @return Eigen::Matrix<double> The vector of eigenvalues.
      */
-    Eigen::VectorXd IRLM_eigen(int k, Eigen::MatrixXd& eigenvectors) const;
+    Eigen::VectorXcd IRLM_eigen(int nb_eigen) const;
 
     /**
      * @brief Calculate the approximate eigenvalues and eigenvectors of the Hamiltonian using the Full Orthogonalization Lanczos Method.
@@ -95,7 +97,7 @@ public:
      * @param eigenvectors An empty matrix to store the eigenvectors.
      * @return Eigen::Matrix<double> The vector of eigenvalues.
      */
-    Eigen::VectorXd FOLM_eigen(int nb_iter, Eigen::VectorXd& v_0, Eigen::MatrixXd& V, Eigen::MatrixXd& eigenvectors) const;
+    Eigen::VectorXd FOLM_eigen(int nb_iter, Eigen::VectorXd& v_0, Eigen::MatrixXd& eigenvectors) const;
 
     /**
      * @brief Calculate the exact eigenvalues and eigenvectors of the Hamiltonian by an exact diagonalization.

@@ -18,26 +18,6 @@
 class Hamiltonian{
 public :
 
-// NEIGHBOURS
-
-    /**
-     * @brief Generate the list of neighbours for a 1D chain.
-     * 
-     * @param m Number of sites in the chain.
-     * @param closed By default, closed = true for periodic boundary conditions, closed = false for open boundary conditions.
-     * @return std::vector<std::vector<int>> The list of neighbours for each site of the chain.
-     */
-    std::vector<std::vector<int>> chain_neighbours(int m, bool closed = true);
-
-    /**
-     * @brief Generate the list of neighbours for a 2D square lattice.
-     * 
-     * @param m Number of sites in the square.
-     * @param closed By default, closed = true for periodic boundary conditions, closed = false for open boundary conditions.
-     * @return std::vector<std::vector<int>> The list of neighbours for each site of the square.
-     */
-     std::vector<std::vector<int>> square_neighbours(int m, bool closed = true);
-
 // DISPLAY METHODS
 
     /**

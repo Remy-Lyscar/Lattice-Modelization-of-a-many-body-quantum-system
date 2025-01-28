@@ -13,62 +13,6 @@
 ///// IMPLEMENTATION OF HAMILTONIAN CLASS METHODS /////
 
 
-    /// NEIGHBOURS ///
-
-/* generate the list of neighbours for a 1D chain */
-std::vector<std::vector<int>> Hamiltonian::chain_neighbours(int m, bool closed) { // by default closed = true for periodic boundary conditions, closed = false for open boundary conditions
-	std::vector<std::vector<int>> neighbours(m);
-	for (int i = 0; i < m; ++i) {
-		if (i > 0) {
-			neighbours[i].push_back(i - 1); // Left neighbour
-		}
-		if (i < m - 1) {
-			neighbours[i].push_back(i + 1); // Right neighbour
-		}
-	}
-	if (closed) { // Periodic boundary conditions
-		neighbours[0].push_back(m - 1); 
-		neighbours[m - 1].push_back(0); 
-	}
-	return neighbours;
-}
-
-/* generate the list of neighbours for a 2D square lattice */
-std::vector<std::vector<int>> Hamiltonian::square_neighbours(int m, bool closed) { // by default closed = true for periodic boundary conditions, closed = false for open boundary conditions
-    int side = static_cast<int>(std::sqrt(m));
-    if (side * side != m) {
-        throw std::invalid_argument("The number of sites (m) must be a perfect square.");
-    }
-    std::vector<std::vector<int>> neighbours(m);
-    for (int i = 0; i < side; ++i) {
-        for (int j = 0; j < side; ++j) {
-            int index = i * side + j;
-            if (j > 0) {
-                neighbours[index].push_back(index - 1); // Left neighbour
-            } else if (closed) {
-                neighbours[index].push_back(index + side - 1);
-            }
-            if (j < side - 1) {
-                neighbours[index].push_back(index + 1); // Right neighbour
-            } else if (closed) {
-                neighbours[index].push_back(index - side + 1);
-            }
-            if (i > 0) {
-                neighbours[index].push_back(index - side); // Top neighbour
-            } else if (closed) {
-                neighbours[index].push_back(index + (side - 1) * side);
-            }
-            if (i < side - 1) {
-                neighbours[index].push_back(index + side); // Bottom neighbour
-            } else if (closed) {
-                neighbours[index].push_back(index - (side - 1) * side);
-            }
-        }
-    }
-    return neighbours;
-}
-
-
     /// DISPLAY FUNCTIONS ///
 
 /* Display a sparse matrix in a standard form in the terminal, as a full matrix */
@@ -317,11 +261,11 @@ Eigen::VectorXd BH::calculate_tags(const Eigen::MatrixXd& basis, const std::vect
 /* Sort the states of the Hilbert space by ascending order compared by their tags*/
 void BH::sort_basis(Eigen::VectorXd& tags, Eigen::MatrixXd& basis) const {
     std::vector<int> indices(tags.size());
-    for (int i = 0; i < indices.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(indices.size()); ++i) {
         indices[i] = i;
     }
     std::sort(indices.begin(), indices.end(), [&tags](int a, int b) {return tags[a] < tags[b];});
-    for (int i = 0; i < indices.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(indices.size()); ++i) {
         while (indices[i] != i) {
             int j = indices[i];
             std::swap(tags[i], tags[j]);
@@ -356,8 +300,8 @@ void BH::fill_hopping(const Eigen::MatrixXd& basis, const Eigen::VectorXd& tags,
 	std::vector<Eigen::Triplet<double>> tripletList;
 	tripletList.reserve(basis.cols() * basis.rows() * neighbours.size());
 	for (int k = 0; k < basis.cols(); k++) {
-		for (int i = 0; i < neighbours.size(); i++) {
-			for (int j = 0; j < neighbours[i].size(); j++) {
+		for (int i = 0; i < static_cast<int>(neighbours.size()); i++) {
+			for (int j = 0; j < static_cast<int>(neighbours[i].size()); j++) {
 				Eigen::VectorXd state = basis.col(k);
 				if (basis.coeff(i, k) >= 1 && basis.coeff(j, k) >= 1) {
 					state[i] += 1;

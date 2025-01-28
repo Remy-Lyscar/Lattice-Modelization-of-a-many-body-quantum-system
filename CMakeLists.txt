@@ -7,25 +7,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+
 # ======== Dependencies ========
-include_directories(include)   # include the header files (including 
-                               # Eigen and arpack++ library)
+include_directories(${CMAKE_SOURCE_DIR}/include)  # include the header files
 
-# find ARPACK and LAPACK 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(LAPACK REQUIRED lapack)  # if found, create LAPACK_INCLUDE_DIRS and other variables
-pkg_check_modules(ARPACK REQUIRED arpack)
+include_directories(${CMAKE_SOURCE_DIR}/external/spectra/include)
 
-include_directories(${LAPACK_INCLUDE_DIRS})
-include_directories(${ARPACK_INCLUDE_DIRS})
-
-
-# Find SuperLU
-pkg_check_modules(SuperLU REQUIRED superlu)
-include_directories(${SuperLU_INCLUDE_DIRS})
-
-# Find pybind11
-find_package(pybind11 REQUIRED)
 
 # ======== Doxygen ========
 find_package(Doxygen)
@@ -46,19 +33,16 @@ else (DOXYGEN_FOUND)
     message(STATUS "Doxygen not found, unable to generate documentation")
 endif (DOXYGEN_FOUND)
 
+
 # ======== Build ========
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})
+
+# Add compiler warning flags
+add_compile_options(-Wall -Wextra -Wunused-variable)
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -march=native)
 
-# Link against ARPACK, LAPACK, and pybind11
-target_link_libraries(${PROJECT_NAME} 
-    PRIVATE ${LAPACK_LIBRARIES} 
-    PRIVATE ${ARPACK_LIBRARIES} 
-    PRIVATE pybind11::module 
-    PRIVATE pybind11::embed
-)
 
 # During the linking process, the linker combines object files (machine code, 
 # but the references, variables, ... have not been dealt with yet) from 
