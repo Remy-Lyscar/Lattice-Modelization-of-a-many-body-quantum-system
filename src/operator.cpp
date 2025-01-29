@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <cmath>
+#include <complex>
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 #include <Eigen/Eigenvalues>
@@ -26,6 +27,13 @@ int Operator::size() const {
 
 
     /// BASIS OPERATIONS ///
+
+/* create the operator Identity*/
+Operator Operator::Identity(int size) {
+    Eigen::SparseMatrix<double> identity(size, size);
+    identity.setIdentity();
+    return Operator(std::move(identity));
+}
 
 /* add a matrix to an operand of type SparseMatrix with same size */
 Operator Operator::operator + (const Operator& operand) const {
@@ -57,7 +65,13 @@ Eigen::VectorXd Operator::operator * (const Eigen::VectorXd& vector) const {
     return this->O * vector;
 }
 
-
+/* multiply a sparse matrix by a scalar */
+Operator Operator::operator * (double scalar) const {
+    Eigen::SparseMatrix<double> smatrix(this->O.rows(), this->O.cols());
+    Operator result(std::move(smatrix));
+    result.O = (this->O * scalar).pruned(ref); // removes elements smaller than ref
+    return result;
+}
 
 ///// DIAGONALIZATION /////
 
@@ -185,14 +199,16 @@ void Operator::canonical_density_matrix(const Eigen::VectorXd& eigenvalues, doub
     throw std::logic_error("This function has not been implemented yet.");
 }
 
-//TODO : Implement the mean boson density calculation so it depends of the chemical potential
+//TODO : A OPTIMISER
 /* Calculate the mean boson density of the system */
-double Operator::boson_density(const Eigen::VectorXd& eigenvalues1, const Eigen::VectorXd& eigenvalues2, double dmu ) const {
-    return -(eigenvalues2(0) - eigenvalues1(0))/dmu;
+std::complex<double> Operator::boson_density(double dmu) const {
+    std::complex<double> E0 = this->IRLM_eigen(1)[0]; // ground state energy at mu
+    std::complex<double> E1 = (*this+(Operator::Identity(D))*dmu).IRLM_eigen(1)[0]; // ground state energy at mu + dmu
+    return -(E1 - E0) / dmu;
 }
 
-//TODO : Implement the compressibility calculation so it depends of the chemical potential
+//TODO : A OPTIMISER
 /* Calculate the compressibility of the system */
-double Operator::compressibility(double density1, double density2, double dmu) const {
-    return std::pow( ((density2 + density1)/2), -2) * (density2 - density1)/dmu;
+std::complex<double> Operator::compressibility(double dmu) const {
+    return std::pow(this->boson_density(dmu), -2) * (this->boson_density(dmu) - (*this+(Operator::Identity(D))*dmu).boson_density(dmu)) / (dmu);
 }

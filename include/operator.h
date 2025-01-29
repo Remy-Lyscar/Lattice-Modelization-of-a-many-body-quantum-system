@@ -2,6 +2,7 @@
 #define OPERATOR_H
 
 #include <cmath>
+#include <complex>
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 #include <Eigen/Eigenvalues>
@@ -54,6 +55,14 @@ public:
 // BASIS OPERATIONS : 
 
     /**
+     * @brief Create the operator Identity.
+     * 
+     * @param size The size of the identity matrix.
+     * @return Operator The identity operator.
+     */
+    static Operator Identity(int size);
+
+    /**
      * @brief Add a matrix to an operand of type SparseMatrix with same size.
      * 
      * @param operand The matrix to add.
@@ -76,6 +85,14 @@ public:
      * @return Eigen::Matrix<T, Eigen::Dynamic, 1> The result of the multiplication.
      */
     Eigen::VectorXd operator * (const Eigen::VectorXd& vector) const;
+
+    /**
+     * @brief Multiply a sparse matrix by a scalar.
+     * 
+     * @param scalar The scalar to multiply.
+     * @return Operator The result of the multiplication.
+     */
+    Operator operator * (double scalar) const;
 
 // DIAGONALIZATION : 
 
@@ -152,9 +169,9 @@ public:
      * @param eigenvalues1 The vector of eigenvalues of the first Hamiltonian with mu.
      * @param eigenvalues2 The vector of eigenvalues of the second Hamiltonian with mu + dmu.
      * @param dmu The difference of chemical potential.
-     * @return double The boson density.
+     * @return std::complex<double> The boson density.
      */
-    double boson_density(const Eigen::VectorXd& eigenvalues1, const Eigen::VectorXd& eigenvalues2, double dmu ) const;
+    std::complex<double> boson_density(double dmu) const;
 
     /**
      * @brief Calculate the double compressibility of the system.
@@ -162,9 +179,9 @@ public:
      * @param density1 The density of the first Hamiltonian with mu.
      * @param density2 The density of the second Hamiltonian with mu + dmu.
      * @param dmu The difference of chemical potential.
-     * @return double The double compressibility.
+     * @return std::complex<double> The double compressibility.
      */
-    double compressibility(double density1, double density2, double dmu) const;
+    std::complex<double> compressibility(double dmu) const;
 
 };
 
