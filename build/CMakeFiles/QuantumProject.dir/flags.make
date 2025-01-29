@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/external/spectra/include
 
-CXX_FLAGS = -std=gnu++20 -Wall -march=native
+CXX_FLAGS = -g -std=gnu++20 -Wall -march=native
 

@@ -78,13 +78,13 @@ Operator Operator::operator * (double scalar) const {
 
     /// IMPLICITLY RESTARTED LANCZOS METHOD (IRLM) ///
 
-/* implement the IRLM for a sparse matrix to find the smallest k eigenvalues of a sparse matrix */
+/* implement the IRLM for a sparse matrix to find the smallest nb_eigen eigenvalues of a sparse matrix */
 Eigen::VectorXcd Operator::IRLM_eigen(int nb_eigen) const {
     SparseGenMatProd<double> op(this->O); // create a compatible matrix object
-    GenEigsSolver<SparseGenMatProd<double>> eigs(op, nb_eigen, 2 * nb_eigen); // create an eigen solver object
+    GenEigsSolver<SparseGenMatProd<double>> eigs(op, nb_eigen, 2 * nb_eigen+1); // create an eigen solver object
     eigs.init(); 
-    [[maybe_unused]] int nconv = eigs.compute(Spectra::SortRule::SmallestMagn); // solve the eigen problem
-    if (eigs.info() == Spectra::CompInfo::Successful) { // verify if the eigen search is a success
+    [[maybe_unused]] int nconv = eigs.compute(Spectra::SortRule::LargestMagn); // solve the eigen problem
+    if (eigs.info() != Spectra::CompInfo::Successful) { // verify if the eigen search is a success
         throw std::runtime_error("Eigenvalue computation failed.");
     }
     Eigen::VectorXcd eigenvalues = eigs.eigenvalues(); // eigenvalues of the hamiltonian
@@ -201,14 +201,14 @@ void Operator::canonical_density_matrix(const Eigen::VectorXd& eigenvalues, doub
 
 //TODO : A OPTIMISER
 /* Calculate the mean boson density of the system */
-std::complex<double> Operator::boson_density(double dmu) const {
+double Operator::boson_density(double dmu) const {
     std::complex<double> E0 = this->IRLM_eigen(1)[0]; // ground state energy at mu
     std::complex<double> E1 = (*this+(Operator::Identity(D))*dmu).IRLM_eigen(1)[0]; // ground state energy at mu + dmu
-    return -(E1 - E0) / dmu;
+    return -(std::abs(E1) -std::abs(E0)) / dmu;
 }
 
 //TODO : A OPTIMISER
 /* Calculate the compressibility of the system */
-std::complex<double> Operator::compressibility(double dmu) const {
-    return std::pow(this->boson_density(dmu), -2) * (this->boson_density(dmu) - (*this+(Operator::Identity(D))*dmu).boson_density(dmu)) / (dmu);
+double Operator::compressibility(double dmu) const {
+    return std::pow(std::real(this->boson_density(dmu)), -2) * (std::real(this->boson_density(dmu)) - std::real((*this+(Operator::Identity(D))*dmu).boson_density(dmu))) / (dmu);
 }

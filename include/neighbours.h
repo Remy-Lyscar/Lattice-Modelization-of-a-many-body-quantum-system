@@ -1,5 +1,5 @@
-#ifndef RANDOMVECTOR_H
-#define RANDOMVECTOR_H
+#ifndef NEIGHBOURS_H
+#define NEIGHBOURS_H
 
 #include <vector>
 #include <cmath>
@@ -13,6 +13,11 @@ public:
      * @param m Number of sites in the lattice.
      */
     Neighbours(int m);
+
+    /**
+     * @brief Destructor for the Neighbours class.
+     */
+    ~Neighbours();
 
     /**
      * @brief Generate the list of neighbours for a 1D chain.
@@ -41,4 +46,4 @@ private:
     std::vector<std::vector<int>> neighbours;
 };
 
-#endif // RANDOMVECTOR_H
+#endif // NEIGHBOURS_H

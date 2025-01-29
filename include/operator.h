@@ -2,7 +2,6 @@
 #define OPERATOR_H
 
 #include <cmath>
-#include <complex>
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 #include <Eigen/Eigenvalues>
@@ -169,9 +168,9 @@ public:
      * @param eigenvalues1 The vector of eigenvalues of the first Hamiltonian with mu.
      * @param eigenvalues2 The vector of eigenvalues of the second Hamiltonian with mu + dmu.
      * @param dmu The difference of chemical potential.
-     * @return std::complex<double> The boson density.
+     * @return double The boson density.
      */
-    std::complex<double> boson_density(double dmu) const;
+    double boson_density(double dmu) const;
 
     /**
      * @brief Calculate the double compressibility of the system.
@@ -179,9 +178,9 @@ public:
      * @param density1 The density of the first Hamiltonian with mu.
      * @param density2 The density of the second Hamiltonian with mu + dmu.
      * @param dmu The difference of chemical potential.
-     * @return std::complex<double> The double compressibility.
+     * @return double The double compressibility.
      */
-    std::complex<double> compressibility(double dmu) const;
+    double compressibility(double dmu) const;
 
 };
 

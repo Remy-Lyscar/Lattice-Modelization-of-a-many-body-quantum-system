@@ -1,25 +1,25 @@
 [
 {
   "directory": "/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/build",
-  "command": "/usr/bin/c++  -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/external/spectra/include -std=gnu++20 -Wall -march=native -o CMakeFiles/QuantumProject.dir/src/hamiltonian.cpp.o -c /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/hamiltonian.cpp",
+  "command": "/usr/bin/c++  -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/external/spectra/include -g -std=gnu++20 -Wall -march=native -o CMakeFiles/QuantumProject.dir/src/hamiltonian.cpp.o -c /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/hamiltonian.cpp",
   "file": "/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/hamiltonian.cpp",
   "output": "CMakeFiles/QuantumProject.dir/src/hamiltonian.cpp.o"
 },
 {
   "directory": "/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/build",
-  "command": "/usr/bin/c++  -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/external/spectra/include -std=gnu++20 -Wall -march=native -o CMakeFiles/QuantumProject.dir/src/main.cpp.o -c /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/main.cpp",
+  "command": "/usr/bin/c++  -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/external/spectra/include -g -std=gnu++20 -Wall -march=native -o CMakeFiles/QuantumProject.dir/src/main.cpp.o -c /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/main.cpp",
   "file": "/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/main.cpp",
   "output": "CMakeFiles/QuantumProject.dir/src/main.cpp.o"
 },
 {
   "directory": "/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/build",
-  "command": "/usr/bin/c++  -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/external/spectra/include -std=gnu++20 -Wall -march=native -o CMakeFiles/QuantumProject.dir/src/neighbours.cpp.o -c /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/neighbours.cpp",
+  "command": "/usr/bin/c++  -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/external/spectra/include -g -std=gnu++20 -Wall -march=native -o CMakeFiles/QuantumProject.dir/src/neighbours.cpp.o -c /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/neighbours.cpp",
   "file": "/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/neighbours.cpp",
   "output": "CMakeFiles/QuantumProject.dir/src/neighbours.cpp.o"
 },
 {
   "directory": "/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/build",
-  "command": "/usr/bin/c++  -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/external/spectra/include -std=gnu++20 -Wall -march=native -o CMakeFiles/QuantumProject.dir/src/operator.cpp.o -c /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/operator.cpp",
+  "command": "/usr/bin/c++  -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include -I/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/external/spectra/include -g -std=gnu++20 -Wall -march=native -o CMakeFiles/QuantumProject.dir/src/operator.cpp.o -c /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/operator.cpp",
   "file": "/home/comel/Lattice-Modelization-of-a-many-body-quantum-system/src/operator.cpp",
   "output": "CMakeFiles/QuantumProject.dir/src/operator.cpp.o"
 }

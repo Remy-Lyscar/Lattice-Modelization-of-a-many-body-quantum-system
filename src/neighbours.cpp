@@ -9,8 +9,10 @@
 
 
 /* Constructor for the Neighbours class */
-Neighbours::Neighbours(int m) : neighbours(m) {}
+Neighbours::Neighbours(int m) :  m(m), neighbours(m) {}
 
+/*Destructor for the Neighbours class */
+Neighbours::~Neighbours() {}
 
 /* generate the list of neighbours for a 1D chain */
 void Neighbours::chain_neighbours(bool closed) { // by default closed = true for periodic boundary conditions, closed = false for open boundary conditions
