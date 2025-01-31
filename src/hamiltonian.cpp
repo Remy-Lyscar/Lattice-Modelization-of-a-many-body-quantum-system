@@ -347,6 +347,7 @@ void BH::fill_chemical(const Eigen::MatrixXd& basis, Eigen::SparseMatrix<double>
 			tripletList.push_back(Eigen::Triplet<double>(it.row(), it.col(), it.value()));
 		}
 	}
+    std::vector<Eigen::Triplet<double>> tripletList2;
 	for (int k = 0; k < basis.cols(); k++) {
 		double value = 0;
 		for (int i = 0; i < basis.rows(); i++) {

@@ -1,5 +1,4 @@
-#ifndef NEIGHBOURS_H
-#define NEIGHBOURS_H
+#pragma once
 
 #include <vector>
 #include <cmath>
@@ -34,6 +33,14 @@ public:
      * @param closed By default, closed = true for periodic boundary conditions, closed = false for open boundary conditions.
      */
     void square_neighbours(bool closed = true);
+
+    /**
+     * @brief Generate the list of neighbours for a 3D cubic lattice.
+     * 
+     * @param m Number of sites in the cube.
+     * @param closed By default, closed = true for periodic boundary conditions, closed = false for open boundary conditions.
+     */
+    void cube_neighbours(bool closed = true);
     
     /** 
     * @brief Return the list of neighbours
@@ -45,5 +52,3 @@ private:
     int m;
     std::vector<std::vector<int>> neighbours;
 };
-
-#endif // NEIGHBOURS_H

@@ -1,5 +1,4 @@
-#ifndef OPERATOR_H
-#define OPERATOR_H
+#pragma once
 
 #include <cmath>
 #include <Eigen/Dense>
@@ -20,7 +19,7 @@ private:
 // INITIALIZATION :
 
     Eigen::SparseMatrix<double> O;
-    int D;
+    int D; // dimension of the Hilbert space of the system
     double ref; // threshold under which a value is considered null
 
 // DIAGONALIZATION : 
@@ -67,7 +66,7 @@ public:
      * @param operand The matrix to add.
      * @return Operator The result of the addition.
      */
-    Operator operator + (const Operator& operand) const;
+    Operator& operator + (const Operator& operand);
 
     /**
      * @brief Multiply a sparse matrix by a multiplicand of type SparseMatrix with same size.
@@ -75,7 +74,7 @@ public:
      * @param multiplicand The matrix to multiply.
      * @return Operator The result of the multiplication.
      */
-    Operator operator * (const Operator& multiplicand) const;
+    Operator& operator * (const Operator& multiplicand);
 
     /**
      * @brief Multiply a sparse matrix by a vector with concomitant size.
@@ -91,7 +90,7 @@ public:
      * @param scalar The scalar to multiply.
      * @return Operator The result of the multiplication.
      */
-    Operator operator * (double scalar) const;
+    Operator& operator * (double scalar);
 
 // DIAGONALIZATION : 
 
@@ -141,7 +140,17 @@ public:
     * @param eigenvalues The vector of eigenvalues.
     * @return double The energy gap ratio.
     */
-    double gap_ratio(const Eigen::VectorXd& eigenvalues) const;
+    double gap_ratio();
+
+    /** 
+    * @brief Add a potential term to the operator.
+    */
+    void add_chemical_potential(double mu, int n);
+
+    /**
+    * @brief Add an interaction term to the operator.
+    */
+    void add_interaction(double U, const Eigen::VectorXd& basis);
 
 // THERMODYNAMICAL FUNCTIONS :
 
@@ -162,26 +171,24 @@ public:
      */
     void canonical_density_matrix(const Eigen::VectorXd& eigenvalues, double temperature) const;
 
-    /**
-     * @brief Calculate the boson density of the system.
-     * 
-     * @param eigenvalues1 The vector of eigenvalues of the first Hamiltonian with mu.
-     * @param eigenvalues2 The vector of eigenvalues of the second Hamiltonian with mu + dmu.
-     * @param dmu The difference of chemical potential.
-     * @return double The boson density.
-     */
-    double boson_density(double dmu) const;
+    /** 
+    * @brief Calculate the boson density of the system.
+    *
+    * @param dmu The difference of chemical potential.
+    * @param n The number of bosons.
+    * @return double The boson density.
+    * @warning This function modifies the values of the operator from mu to mu + dmu.
+    */
+    double boson_density(double dmu, int n);
 
     /**
-     * @brief Calculate the double compressibility of the system.
-     * 
-     * @param density1 The density of the first Hamiltonian with mu.
-     * @param density2 The density of the second Hamiltonian with mu + dmu.
+     * @brief Calculate the isothermal compressibility of the system.
+     *
      * @param dmu The difference of chemical potential.
-     * @return double The double compressibility.
+     * @param n The number of bosons.
+     * @return double The compressibility.
+     * @warning This function modifies the values of the operator from mu to mu + dmu.
      */
-    double compressibility(double dmu) const;
+    double compressibility(double dmu, int n);
 
 };
-
-#endif // OPERATOR_H

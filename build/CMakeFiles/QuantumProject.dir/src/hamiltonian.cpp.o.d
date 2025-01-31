@@ -563,4 +563,5 @@ CMakeFiles/QuantumProject.dir/src/hamiltonian.cpp.o: \
  /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include/Eigen/src/SparseCore/SparsePermutation.h \
  /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include/Eigen/src/SparseCore/SparseFuzzy.h \
  /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include/Eigen/src/SparseCore/SparseSolverBase.h \
- /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include/hamiltonian.h
+ /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include/hamiltonian.h \
+ /home/comel/Lattice-Modelization-of-a-many-body-quantum-system/include/Eigen/src/Core/Matrix.h

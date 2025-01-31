@@ -26,7 +26,10 @@ int Operator::size() const {
 }
 
 
-    /// BASIS OPERATIONS ///
+///// BASIS FUNCTIONS /////
+
+
+    /// IDENTITY OPERATOR ///
 
 /* create the operator Identity*/
 Operator Operator::Identity(int size) {
@@ -35,26 +38,27 @@ Operator Operator::Identity(int size) {
     return Operator(std::move(identity));
 }
 
+
+    /// ADDITION AND MULTIPLICATION ///
+
 /* add a matrix to an operand of type SparseMatrix with same size */
-Operator Operator::operator + (const Operator& operand) const {
+Operator& Operator::operator + (const Operator& operand) {
     if (this->O.rows() != operand.O.rows() || this->O.cols() != operand.O.cols()) { // verify that the operands have matching size
         throw std::invalid_argument("Matrix should have matching size.");
     }
-    Eigen::SparseMatrix<double> smatrix(this->O.rows(), this->O.cols());
-    Operator result(std::move(smatrix));
-    result.O = (this->O + operand.O).pruned(ref); // removes elements smaller than ref
-    return result;
+    this->O = (this->O + operand.O).pruned(ref); // removes elements smaller than ref
+    return *this;
 }
 
 /* multiply a sparse matrix by a multiplicand of type SparseMatrix with same size */
-Operator Operator::operator * (const Operator& multiplicand) const {
+Operator& Operator::operator * (const Operator& multiplicand) {
     if (this->O.cols() != multiplicand.O.rows()) {
         throw std::invalid_argument("Number of columns of multiplier must equal number of rows of multiplicand."); // verify that the number of columns of multiplier equals number of rows of multiplicand
     }
     Eigen::SparseMatrix<double> smatrix(this->O.rows(), multiplicand.O.cols());
     Operator result(std::move(smatrix));
-    result.O = (this->O * multiplicand.O).pruned(ref); // removes elements smaller than ref
-    return result;
+    this->O = (this->O * multiplicand.O).pruned(ref); // removes elements smaller than ref
+    return *this;
 }
 
 /* multiply a sparse matrix by a vector with concomitant size */
@@ -66,12 +70,15 @@ Eigen::VectorXd Operator::operator * (const Eigen::VectorXd& vector) const {
 }
 
 /* multiply a sparse matrix by a scalar */
-Operator Operator::operator * (double scalar) const {
+Operator& Operator::operator * (double scalar) {
     Eigen::SparseMatrix<double> smatrix(this->O.rows(), this->O.cols());
     Operator result(std::move(smatrix));
-    result.O = (this->O * scalar).pruned(ref); // removes elements smaller than ref
-    return result;
+    this->O = (this->O * scalar).pruned(ref); // removes elements smaller than ref
+    return *this;
 }
+
+
+
 
 ///// DIAGONALIZATION /////
 
@@ -161,7 +168,7 @@ Eigen::VectorXd Operator::exact_eigen(Eigen::MatrixXd& eigenvectors) const {
 
 
 
-///// PHASE TRANSITION CALCULATIONS /////
+///// PHASE TRANSITION CHARACTERIZATION /////
 
 
 // TODO: Implement the order parameter calculation
@@ -172,11 +179,27 @@ double Operator::order_parameter(const Eigen::VectorXd& eigenvalues, const Eigen
 
 // TODO: Implement the energy gap ratio calculation
 /* Calculate the energy gap ratio of the system */
-double Operator::gap_ratio(const Eigen::VectorXd& eigenvalues) const {
-    throw std::logic_error("This function has not been implemented yet.");
+double Operator::gap_ratio() {
+    double E0 = std::real(this->IRLM_eigen(2)[0]); // ground state energy
+    double E1 = std::real(this->IRLM_eigen(2)[1]); // first excited state energy
+    return (E1 - E0) / (E1 + E0);
 }
 
+    
+    /// SPECIFIC CALCULATIONS ///
 
+
+//TODO : A ECRIRE
+/* Add a potential mu to the operator */
+void Operator::add_chemical_potential(double mu, int n) {
+    *this = *this + Operator::Identity(D) * (mu * n);
+}
+
+//TODO : A ECRIRE
+/* Add an interaction U to the operator */
+void Operator::add_interaction(double U, const Eigen::VectorXd& interaction_matrix) {
+    throw std::logic_error("This function has not been implemented yet.");
+}
 
 
 ///// THERMODYNAMICAL FUNCTIONS /////
@@ -201,14 +224,20 @@ void Operator::canonical_density_matrix(const Eigen::VectorXd& eigenvalues, doub
 
 //TODO : A OPTIMISER
 /* Calculate the mean boson density of the system */
-double Operator::boson_density(double dmu) const {
+double Operator::boson_density(double dmu, int n) {
     std::complex<double> E0 = this->IRLM_eigen(1)[0]; // ground state energy at mu
-    std::complex<double> E1 = (*this+(Operator::Identity(D))*dmu).IRLM_eigen(1)[0]; // ground state energy at mu + dmu
-    return -(std::abs(E1) -std::abs(E0)) / dmu;
+    *this = *this + Operator::Identity(D) * dmu* n;
+    std::complex<double> E1 = this->IRLM_eigen(1)[0]; // ground state energy at mu + dmu
+    *this = *this + Operator::Identity(D) * (-dmu * n);
+    return -(std::real(E1) - std::real(E0)) / dmu;
 }
 
 //TODO : A OPTIMISER
-/* Calculate the compressibility of the system */
-double Operator::compressibility(double dmu) const {
-    return std::pow(std::real(this->boson_density(dmu)), -2) * (std::real(this->boson_density(dmu)) - std::real((*this+(Operator::Identity(D))*dmu).boson_density(dmu))) / (dmu);
+/* Calculate the isothermal compressibility of the system */
+double Operator::compressibility(double dmu, int n) {
+    double n1 = this->boson_density(dmu, n); // density at mu
+    *this = *this + Operator::Identity(D) * dmu * n;
+    double n2 = this->boson_density(dmu, n); // density at mu + dmu
+    *this = *this + Operator::Identity(D) * (-dmu * n);
+    return std::pow(n1,-2) * (n2-n1)/dmu;
 }

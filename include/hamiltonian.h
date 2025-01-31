@@ -1,6 +1,6 @@
-#ifndef HAMILTONIAN_H
-#define HAMILTONIAN_H
+#pragma once
 
+#include "Eigen/src/Core/Matrix.h"
 #include<vector>
 #include<complex>
 
@@ -208,6 +208,8 @@ private:
 
 public:
 
+    Eigen::VectorXd interaction_matrix; // Vector that contains the interaction matrix elements
+
 // CONSTRUCTOR
 
     /**
@@ -237,7 +239,4 @@ public:
     * @brief Display all the attributes of the BH model.
     */
     void display_all() const; 
-};
-
-#endif // HAMILTONIAN_H
- 
+}; 
